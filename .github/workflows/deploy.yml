@@ -41,61 +41,81 @@ jobs:
 
   deploy:
     name: Deploy to server
-    # The image is built on the server itself, so `ci` acts as the gate.
+    # The image is built on the runner host, so `ci` acts as the gate.
     needs: ci
-    runs-on: ubuntu-latest
+    # `production` avoids the default self-hosted Linux pool, which is shared
+    # with other jobs on this machine.
+    runs-on: [self-hosted, Linux, X64, production]
     steps:
       - uses: actions/checkout@v4
 
-      - name: Configure SSH
-        # Deploy key: private key in secrets, public key in the repo's
-        # "Deploy keys" settings on GitHub.
-        run: |
-          mkdir -p ~/.ssh
-          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          printf '%s\n' "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
-
-      - name: Build and restart on the server
+      - name: Write .env
+        # Secrets are materialized here, on the deploy host, and never leave it.
+        # Existing values (tunnel token, host port) are preserved across runs.
         env:
-          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
-          SSH_USER: ${{ secrets.DEPLOY_USER }}
-          # Passed to the remote .env; keeps the token server-side only.
           SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
           NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
           NEXT_PUBLIC_SANITY_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}
           NEXT_PUBLIC_SANITY_API_VERSION: ${{ secrets.NEXT_PUBLIC_SANITY_API_VERSION }}
+          CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
         run: |
-          rsync -az --delete \
-            --exclude '.git' --exclude 'node_modules' --exclude '.next' \
-            --exclude '.env*' --exclude 'scripts' --exclude '.idea' \
-            ./ "$SSH_USER@$SSH_HOST:~/portfolio/"
+          set -euo pipefail
+          touch .env
+          chmod 600 .env
+          set_env() {
+            # Replace the key if present, otherwise append it.
+            if grep -qE "^$1=" .env; then
+              # Use a temp file so the value never lands in shell history/logs.
+              KEY="$1" VAL="$2" python3 - <<'PY'
+          import os, pathlib
+          key, val = os.environ["KEY"], os.environ["VAL"]
+          p = pathlib.Path(".env")
+          lines = [f"{key}={val}" if l.startswith(key + "=") else l
+                   for l in p.read_text().splitlines() if l.strip()]
+          p.write_text("\n".join(lines) + "\n")
+          PY
+            else
+              printf '%s=%s\n' "$1" "$2" >> .env
+            fi
+          }
+          set_env SANITY_API_TOKEN "$SANITY_API_TOKEN"
+          set_env NEXT_PUBLIC_SANITY_PROJECT_ID "$NEXT_PUBLIC_SANITY_PROJECT_ID"
+          set_env NEXT_PUBLIC_SANITY_DATASET "$NEXT_PUBLIC_SANITY_DATASET"
+          set_env NEXT_PUBLIC_SANITY_API_VERSION "$NEXT_PUBLIC_SANITY_API_VERSION"
+          set_env CLOUDFLARE_TUNNEL_TOKEN "$CLOUDFLARE_TUNNEL_TOKEN"
+          # This host already binds 8080 for another stack, so publish on 8090.
+          set_env WEB_HOST_PORT 8090
+          set_env NEXT_PUBLIC_SITE_URL "${SITE_URL:-https://oud-idk.dev}"
+          echo "wrote .env with $(grep -cE '^[A-Z_]+=' .env) keys"
 
-          ssh -o BatchMode=yes "$SSH_USER@$SSH_HOST" bash -s <<REMOTE
-            set -euo pipefail
-            cd ~/portfolio
-            {
-              echo "SANITY_API_TOKEN=$SANITY_API_TOKEN"
-              echo "NEXT_PUBLIC_SANITY_PROJECT_ID=$NEXT_PUBLIC_SANITY_PROJECT_ID"
-              echo "NEXT_PUBLIC_SANITY_DATASET=$NEXT_PUBLIC_SANITY_DATASET"
-              echo "NEXT_PUBLIC_SANITY_API_VERSION=$NEXT_PUBLIC_SANITY_API_VERSION"
-              # Preserved so restarts don't drop the tunnel token.
-              grep -E '^CLOUDFLARE_TUNNEL_TOKEN=' .env 2>/dev/null || true
-              # Preserved for the same reason; the deploy server needs 8090
-              # because 8080 is already bound by another stack.
-              grep -E '^WEB_HOST_PORT=' .env 2>/dev/null || echo "WEB_HOST_PORT=8090"
-            } > .env
-            chmod 600 .env
-            docker compose --env-file .env up -d --build
-            docker image prune -f >/dev/null
-          REMOTE
+      - name: Build and restart
+        run: |
+          set -euo pipefail
+          docker compose --env-file .env up -d --build
+          # Wait for the app's own healthcheck to pass.
+          for i in $(seq 1 30); do
+            status=$(docker inspect --format '{{.State.Health.Status}}' \
+              "$(docker compose --env-file .env ps -q web)" 2>/dev/null || echo none)
+            if [ "$status" = "healthy" ]; then
+              echo "web is healthy after ${i}0s"
+              break
+            fi
+            if [ "$i" = "30" ]; then
+              echo "::error::web never became healthy"
+              docker compose --env-file .env logs --tail 50 web
+              exit 1
+            fi
+            sleep 10
+          done
+          docker image prune -f > /dev/null
+          echo "--- running services ---"
+          docker compose --env-file .env ps
 
-      - name: Verify the site responds
+      - name: Verify the tunnel serves the site
         env:
           SITE_URL: ${{ vars.SITE_URL || 'https://oud-idk.dev' }}
         run: |
-          for i in $(seq 1 20); do
+          for i in $(seq 1 12); do
             code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "$SITE_URL/" || true)
             if [ "$code" = "200" ]; then
               echo "Deployed: $SITE_URL (200)"
@@ -104,5 +124,6 @@ jobs:
             echo "Attempt $i: got '$code', retrying..."
             sleep 10
           done
-          echo "::error::Site did not return 200 after deploy"
+          echo "::error::$SITE_URL did not return 200"
+          docker compose --env-file .env logs --tail 30 cloudflared
           exit 1
