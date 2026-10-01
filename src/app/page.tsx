@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getProjects, imageUrl } from "@/sanity/lib/queries";
+import { getProjects } from "@/sanity/lib/queries";
 
 // shadcn components
 import { buttonVariants } from "@/components/ui/button";
@@ -19,14 +19,14 @@ import { ArrowUpRight } from "lucide-react";
 const mainContent = `
 ## Full-Stack Software Engineer
 
-I create high-performance web applications build for speed, usability, and reliability.
+I create high-performance web applications built for speed, usability, and reliability.
 
-Too much modern software and web applications are filled with needless complexity, leading to slow loading times and reduced performance, which drives users away. My approach is **pragmatic**; simple and elegant websites that keeps user hooked without complexity.
+Too much modern software and web applications are filled with needless complexity, leading to slow loading times and reduced performance, which drives users away. My approach is **pragmatic**; simple and elegant websites that keeps users hooked without complexity.
 `;
 
 const otherContent = `
 ### Values
-- **Speed & Performance**. Fast website retain more users. I make platforms that is exactly that.
+- **Speed & Performance**. Fast website retains more users. I make platforms that is exactly that.
 - **Universal Accessibility**. A great product should be usable by everyone.
 - **Clean, Maintainable Architecture**. I prioritize clear and dependable code over fragile, 'smart' shortcuts.
 
@@ -61,7 +61,7 @@ export default async function Home() {
                     </h1>
 
                     <p className="text-lg leading-relaxed text-muted-foreground">
-                        &quot;If your website is not accessible, easy to use, and simple to look at, then scram.&quot;
+                        &quot;If your website is not accessible, easy to use, and simple to look at... what&apos;s the point?&quot;
                     </p>
 
                     <div className="flex items-center gap-3 pt-4">
