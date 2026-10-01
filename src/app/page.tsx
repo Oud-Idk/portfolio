@@ -22,7 +22,9 @@ const mainContent = `
 I create high-performance web applications build for speed, usability, and reliability.
 
 Too much modern software and web applications are filled with needless complexity, leading to slow loading times and reduced performance, which drives users away. My approach is **pragmatic**; simple and elegant websites that keeps user hooked without complexity.
+`;
 
+const otherContent = `
 ### Values
 - **Speed & Performance**. Fast website retain more users. I make platforms that is exactly that.
 - **Universal Accessibility**. A great product should be usable by everyone.
@@ -45,7 +47,7 @@ This website is a breathing example of my philosophy. I can write something like
 $$
 \\frac{\\partial \\mathbf{u}}{\\partial t} + (\\mathbf{u} \\cdot \\nabla)\\mathbf{u} = -\\frac{1}{\\rho}\\nabla p + \\nu \\nabla^2 \\mathbf{u} + \\mathbf{f}
 $$
-`;
+`
 
 export default async function Home() {
     const projects = await getProjects();
@@ -80,6 +82,8 @@ export default async function Home() {
                         </a>
                     </div>
                 </section>
+
+                <MarkdownRenderer content={mainContent} />
 
                 <Separator />
 
@@ -176,9 +180,7 @@ export default async function Home() {
 
                 <Separator />
 
-                <section className="space-y-4">
-                    <MarkdownRenderer content={mainContent} />
-                </section>
+                <MarkdownRenderer content={otherContent} />
 
                 <footer className="flex items-center justify-between border-t border-border pt-8 text-xs text-muted-foreground">
                     <p>© {new Date().getFullYear()} Oud • Built with Next.js & Sanity</p>
