@@ -20,6 +20,38 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Docker (app + Cloudflare Tunnel)
+
+Runs the production build in a container and exposes it over a Cloudflare Tunnel
+without opening any port on your router.
+
+```bash
+cp .env.docker.example .env   # fill in the Sanity values
+docker compose up --build
+```
+
+Get the public URL:
+
+```bash
+docker compose logs -f cloudflared | grep -o 'https://[-a-z0-9]*\.trycloudflare\.com'
+```
+
+Notes:
+
+- **Quick Tunnel vs Named Tunnel.** The default `command` starts a Quick Tunnel:
+  no Cloudflare account needed, but Cloudflare assigns a random `*.trycloudflare.com`
+  hostname that changes on every restart. For a stable hostname, create a tunnel in
+  the Cloudflare dashboard, set `CLOUDFLARE_TUNNEL_TOKEN` in `.env`, and uncomment the
+  `command` / `environment` lines in `docker-compose.yml`. The dashboard's public
+  hostname must point at `http://web:3000`.
+- **Ports.** The container always listens on `3000` internally; only the host side is
+  remapped, to `127.0.0.1:8080`, so it won't clash with a server already using 3000.
+  Swap the left side of the mapping to publish on the LAN.
+- **`NEXT_PUBLIC_*` must be set at build time.** Next.js inlines them into the client
+  bundle, so changing them needs `docker compose build`, not just a restart.
+  `SANITY_API_TOKEN` is server-only and is injected at runtime from `.env.local`.
+- Add `--env-file .env.local` to any `docker compose` command to use that file's values.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

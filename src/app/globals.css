@@ -1,26 +1,289 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: oklch(0.97 0 0);
+  --surface: oklch(0.95 0 0);
+  --surface-muted: oklch(0.93 0 0);
+  --surface-elevated: oklch(0.87 0 0);
+  --surface-active: oklch(0.9 0 0);
+  --overlay: oklch(0 0 0 / 0.4);
+
+  --foreground: oklch(0.18 0 0);
+  --muted-foreground: oklch(0.48 0 0);
+  --border: oklch(0.88 0 0);
+  --border-subtle: oklch(0.94 0 0);
+  --focus-ring: oklch(0.6 0.2 264 / 0.5);
+
+  --brand: oklch(0.6 0.2 264);
+  --brand-hover: oklch(0.53 0.2 264);
+  --brand-subtle: oklch(0.95 0.04 264);
+  --brand-foreground: oklch(0.99 0 0);
+
+  --danger: oklch(0.58 0.24 27);
+  --danger-hover: oklch(0.51 0.24 27);
+  --danger-subtle: oklch(0.96 0.04 27);
+  --danger-border: oklch(0.7 0.12 27);
+  --danger-foreground: oklch(0.99 0 0);
+
+  --success: oklch(0.62 0.19 145);
+  --success-subtle: oklch(0.96 0.04 145);
+
+  --warning: oklch(0.75 0.18 75);
+  --warning-subtle: oklch(0.97 0.05 75);
+
+  --info: oklch(0.6 0.16 230);
+  --info-subtle: oklch(0.95 0.03 230);
+}
+
+.dark {
+  --background: oklch(0.14 0 0);
+  --surface: oklch(0.17 0 0);
+  --surface-muted: oklch(0.15 0 0);
+  --surface-elevated: oklch(0.2 0 0);
+  --surface-active: oklch(0.22 0 0);
+  --overlay: oklch(0 0 0 / 0.7);
+
+  --foreground: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.62 0 0);
+  --border: oklch(0.28 0 0);
+  --border-subtle: oklch(0.22 0 0);
+  --focus-ring: oklch(0.68 0.2 264 / 0.5);
+
+  --brand: oklch(0.575 0.2 264);
+  --brand-hover: oklch(0.6 0.2 264);
+  --brand-subtle: oklch(0.22 0.06 264);
+  --brand-foreground: oklch(0.99 0 0);
+
+  --danger: oklch(0.7 0.24 27);
+  --danger-hover: oklch(0.6 0.24 27);
+  --danger-subtle: oklch(0.15 0.02 27);
+  --danger-border: oklch(0.3 0.075 27);
+
+  --success: oklch(0.68 0.19 145);
+  --success-subtle: oklch(0.22 0.05 145);
+
+  --warning: oklch(0.8 0.18 75);
+  --warning-subtle: oklch(0.25 0.06 75);
+
+  --info: oklch(0.68 0.16 230);
+  --info-subtle: oklch(0.22 0.05 230);
+}
+
+/* ---------------------------------------------------------------------------
+ * shadcn semantic tokens, aliased onto the primitives above.
+ * Declared once (not per-mode) because they resolve through var(), so the
+ * `.dark` primitive overrides cascade automatically.
+ * ------------------------------------------------------------------------- */
+
+:root {
+  --card: var(--surface);
+  --card-foreground: var(--foreground);
+  --popover: var(--surface-elevated);
+  --popover-foreground: var(--foreground);
+
+  --primary: var(--brand);
+  --primary-foreground: var(--brand-foreground);
+  --secondary: var(--surface-muted);
+  --secondary-foreground: var(--foreground);
+  --muted: var(--surface-active);
+  --accent: var(--surface-elevated);
+  --accent-foreground: var(--foreground);
+  --destructive: var(--danger);
+
+  --input: var(--border);
+  --ring: var(--brand);
+
+  --radius: 0.625rem;
+
+  --sidebar: var(--surface);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--brand);
+  --sidebar-primary-foreground: var(--brand-foreground);
+  --sidebar-accent: var(--surface-active);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--brand);
 }
 
 @theme inline {
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--danger-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-chart-1: oklch(0.87 0 0);
+  --color-chart-2: oklch(0.556 0 0);
+  --color-chart-3: oklch(0.439 0 0);
+  --color-chart-4: oklch(0.371 0 0);
+  --color-chart-5: oklch(0.269 0 0);
+
+  /* dashboard tokens */
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-active: var(--surface-active);
+  --color-overlay: var(--overlay);
+  --color-border-subtle: var(--border-subtle);
+  --color-focus-ring: var(--focus-ring);
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-subtle: var(--brand-subtle);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-danger: var(--danger);
+  --color-danger-hover: var(--danger-hover);
+  --color-danger-subtle: var(--danger-subtle);
+  --color-danger-border: var(--danger-border);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-success: var(--success);
+  --color-success-subtle: var(--success-subtle);
+  --color-warning: var(--warning);
+  --color-warning-subtle: var(--warning-subtle);
+  --color-info: var(--info);
+  --color-info-subtle: var(--info-subtle);
+
+  --shadow-dropdown: 0px 4px 20px -2px oklch(0 0 0 / 0.15);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@utility focus-ring {
+  @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:border-brand transition-all duration-150;
+}
+
+@utility focus-ring-danger {
+  @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-danger/20 focus-visible:border-danger-border transition-all duration-150;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ---------------------------------------------------------------------------
+ * prose overrides — copied from mod-oud/dashboard/src/app/globals.css
+ * Required by the markdown system (MarkdownRenderer relies on `prose`).
+ * ------------------------------------------------------------------------- */
+
+.prose {
+  max-width: none;
+
+  /* Bind every typography-plugin token to the palette above, so prose follows
+     the same semantics as the rest of the app instead of shipping the plugin's
+     blue-tinted grays (#d1d5dc table lines, #4a5565 invert borders). */
+  --tw-prose-body: var(--foreground);
+  --tw-prose-headings: var(--foreground);
+  --tw-prose-lead: var(--muted-foreground);
+  --tw-prose-links: var(--foreground);
+  --tw-prose-bold: var(--foreground);
+  --tw-prose-counters: var(--muted-foreground);
+  --tw-prose-bullets: var(--muted-foreground);
+  --tw-prose-hr: var(--border);
+  --tw-prose-quotes: var(--muted-foreground);
+  --tw-prose-quote-borders: var(--border);
+  --tw-prose-captions: var(--muted-foreground);
+  --tw-prose-kbd: var(--surface-active);
+  --tw-prose-code: var(--foreground);
+  --tw-prose-pre-code: var(--foreground);
+  --tw-prose-pre-bg: var(--surface-muted);
+  --tw-prose-th-borders: var(--border);
+  --tw-prose-td-borders: var(--border-subtle);
+
+  /* The invert set is aliased to the same tokens: our vars already flip under
+     `.dark`, so `dark:prose-invert` becomes a no-op instead of a second
+     palette layered on top. */
+  --tw-prose-invert-body: var(--foreground);
+  --tw-prose-invert-headings: var(--foreground);
+  --tw-prose-invert-lead: var(--muted-foreground);
+  --tw-prose-invert-links: var(--foreground);
+  --tw-prose-invert-bold: var(--foreground);
+  --tw-prose-invert-counters: var(--muted-foreground);
+  --tw-prose-invert-bullets: var(--muted-foreground);
+  --tw-prose-invert-hr: var(--border);
+  --tw-prose-invert-quotes: var(--muted-foreground);
+  --tw-prose-invert-quote-borders: var(--border);
+  --tw-prose-invert-captions: var(--muted-foreground);
+  --tw-prose-invert-kbd: var(--surface-active);
+  --tw-prose-invert-code: var(--foreground);
+  --tw-prose-invert-pre-code: var(--foreground);
+  --tw-prose-invert-pre-bg: var(--surface-muted);
+  --tw-prose-invert-th-borders: var(--border);
+  --tw-prose-invert-td-borders: var(--border-subtle);
+}
+
+.prose :where(p):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  margin: 1rem 0;
+}
+
+.prose pre {
+  padding: 0.3rem;
+  overflow-x: auto;
+}
+
+pre div div {
+  margin: 0 !important;
+  padding: 0.3rem !important;
+}
+
+.prose code {
+  font-weight: 400;
+}
+
+blockquote {
+  font-style: normal;
+  font-weight: 400;
+}
+
+.prose :where(blockquote) {
+  border-left-color: var(--border);
+}
+
+.prose :where(blockquote p:first-of-type):before {
+  content: normal;
 }

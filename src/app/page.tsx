@@ -1,69 +1,198 @@
-import Image from "next/image";
+import Link from "next/link";
+import { getProjects, imageUrl } from "@/sanity/lib/queries";
 
-export default function Home() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+// shadcn components
+import { buttonVariants } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    CardContent,
+    CardFooter,
+} from "@/components/ui/card";
+import { MarkdownRenderer } from "@/components/ui/markdown/MarkdownRenderer";
+import { ArrowUpRight } from "lucide-react";
+
+const mainContent = `
+## Full-Stack Software Engineer
+
+I create high-performance web applications build for speed, usability, and reliability.
+
+Too much modern software and web applications are filled with needless complexity, leading to slow loading times and reduced performance, which drives users away. My approach is **pragmatic**; simple and elegant websites that keeps user hooked without complexity.
+
+### Values
+- **Speed & Performance**. Fast website retain more users. I make platforms that is exactly that.
+- **Universal Accessibility**. A great product should be usable by everyone.
+- **Clean, Maintainable Architecture**. I prioritize clear and dependable code over fragile, 'smart' shortcuts.
+
+## Technical Competencies
+
+- **Frontend Development:** React, Next.js, TypeScript, Tailwind CSS, Component Systems
+- **Backend & Data Architecture:** Node.js, Rust, PostgreSQL, MongoDB, RESTful & GraphQL APIs
+- **Content Management & Workflow:** Sanity CMS, Git, Linux Environments
+
+## The Approach
+
+> *"Simplicity is prerequisite for reliability."* - Edsger W. Dijkstra
+
+The best software doesn’t call attention to its complexity. The best onoe simply works. Whether developing a dashboard or a company profile, my goal is to deliver intuitive, resilient tools that respect your and your users' time.
+
+This website is a breathing example of my philosophy. I can write something like this, and it will still load instantly.
+
+$$
+\\frac{\\partial \\mathbf{u}}{\\partial t} + (\\mathbf{u} \\cdot \\nabla)\\mathbf{u} = -\\frac{1}{\\rho}\\nabla p + \\nu \\nabla^2 \\mathbf{u} + \\mathbf{f}
+$$
+`;
+
+export default async function Home() {
+    const projects = await getProjects();
+
+    return (
+        <div className="min-h-screen text-foreground antialiased">
+            <main className="mx-auto flex max-w-7xl flex-col gap-8">
+                <section className="flex flex-col items-start gap-2">
+                    <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+                        Hi, I&apos;m Dayton Glenn Japaryo.
+                    </h1>
+
+                    <p className="text-lg leading-relaxed text-muted-foreground">
+                        &quot;If your website is not accessible, easy to use, and simple to look at, then scram.&quot;
+                    </p>
+
+                    <div className="flex items-center gap-3 pt-4">
+                        <a
+                            href="mailto:d.japaryo@gmail.com"
+                            className={buttonVariants()}
+                        >
+                            Get in touch
+                        </a>
+
+                        <a
+                            href="https://github.com/Oud-Idk"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={buttonVariants({ variant: "outline" })}
+                        >
+                            GitHub ↗
+                        </a>
+                    </div>
+                </section>
+
+                <Separator />
+
+                <section className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h2 className="text-xl font-bold tracking-tight">Some Projects</h2>
+                        </div>
+
+                        <Link
+                            href="/studio"
+                            className={buttonVariants({ variant: "ghost", size: "sm" })}
+                        >
+                            CMS Studio ↗
+                        </Link>
+                    </div>
+
+                    {projects.length === 0 ? (
+                        <Card className="border-dashed p-10 text-center bg-transparent">
+                            <p className="text-sm text-muted-foreground">
+                               No projects... sadly
+                            </p>
+                        </Card>
+                    ) : (
+                        <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
+                            {projects.map((project) => (
+                                <Card
+                                    key={project._id}
+                                    className="group flex flex-col justify-between transition-all hover:border-foreground/30 hover:shadow-sm"
+                                >
+                                    <CardHeader>
+                                        <CardTitle className="text-lg font-semibold">
+                                            {project.slug ? (
+                                                <Link
+                                                    href={`/projects/${project.slug}`}
+                                                    className="outline-none focus-ring"
+                                                >
+                                                    {project.title}
+                                                </Link>
+                                            ) : (
+                                                project.title
+                                            )}
+                                        </CardTitle>
+                                        <CardDescription>
+                                            {project.summary || "No description provided."}
+                                        </CardDescription>
+                                    </CardHeader>
+
+                                    <CardContent>
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {project.tags?.map((tag) => (
+                                                <Badge key={tag} variant="secondary" className="text-xs font-normal">
+                                                    {tag}
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                    </CardContent>
+
+                                    <CardFooter className="flex justify-end gap-2 border-t pt-4">
+                                        {project.slug && (
+                                            <Link
+                                                href={`/projects/${project.slug}`}
+                                                className={buttonVariants({ variant: "ghost", size: "sm" })}
+                                            >
+                                                Write-up -&gt;
+                                            </Link>
+                                        )}
+                                        {project.githubUrl && (
+                                            <a
+                                                href={project.githubUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className={buttonVariants({ variant: "ghost", size: "sm" })}
+                                            >
+                                                Code
+                                            </a>
+                                        )}
+                                        {project.liveUrl && (
+                                            <a
+                                                href={project.liveUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className={buttonVariants({ variant: "default", size: "sm" })}
+                                            >
+                                                Live Demo <ArrowUpRight/>
+                                            </a>
+                                        )}
+                                    </CardFooter>
+                                </Card>
+                            ))}
+                        </div>
+                    )}
+                </section>
+
+                <Separator />
+
+                <section className="space-y-4">
+                    <MarkdownRenderer content={mainContent} />
+                </section>
+
+                <footer className="flex items-center justify-between border-t border-border pt-8 text-xs text-muted-foreground">
+                    <p>© {new Date().getFullYear()} Oud • Built with Next.js & Sanity</p>
+                    <div className="flex gap-4">
+                        <a href="https://github.com/Oud-Idk" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">
+                            GitHub
+                        </a>
+                        <a href="mailto:d.japaryo@gmail.com" className="hover:text-foreground">
+                            Email
+                        </a>
+                    </div>
+                </footer>
+
+            </main>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+    );
 }

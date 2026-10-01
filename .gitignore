@@ -15,6 +15,9 @@
 
 # next.js
 /.next/
+
+# local perf/screenshot scratch output from scripts/
+/.smoke/
 /out/
 
 # production
@@ -32,6 +35,13 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# ...except the committed Docker template, which holds no real values.
+!.env.docker.example
+
+# IDE / editor
+.idea
+.DS_Store
+*.iml
 
 # vercel
 .vercel

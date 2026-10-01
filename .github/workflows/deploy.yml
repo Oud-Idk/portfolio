@@ -1,0 +1,108 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Only one deploy at a time; don't cancel a run that's already rolling out.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    name: Lint & build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Build
+        # NEXT_PUBLIC_* are inlined at build time, so the build needs them.
+        env:
+          NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
+          NEXT_PUBLIC_SANITY_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}
+          NEXT_PUBLIC_SANITY_API_VERSION: ${{ secrets.NEXT_PUBLIC_SANITY_API_VERSION }}
+        run: npm run build
+
+  deploy:
+    name: Deploy to server
+    # The image is built on the server itself, so `ci` acts as the gate.
+    needs: ci
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure SSH
+        # Deploy key: private key in secrets, public key in the repo's
+        # "Deploy keys" settings on GitHub.
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Build and restart on the server
+        env:
+          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_USER }}
+          # Passed to the remote .env; keeps the token server-side only.
+          SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
+          NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
+          NEXT_PUBLIC_SANITY_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}
+          NEXT_PUBLIC_SANITY_API_VERSION: ${{ secrets.NEXT_PUBLIC_SANITY_API_VERSION }}
+        run: |
+          rsync -az --delete \
+            --exclude '.git' --exclude 'node_modules' --exclude '.next' \
+            --exclude '.env*' --exclude 'scripts' --exclude '.idea' \
+            ./ "$SSH_USER@$SSH_HOST:~/portfolio/"
+
+          ssh -o BatchMode=yes "$SSH_USER@$SSH_HOST" bash -s <<REMOTE
+            set -euo pipefail
+            cd ~/portfolio
+            {
+              echo "SANITY_API_TOKEN=$SANITY_API_TOKEN"
+              echo "NEXT_PUBLIC_SANITY_PROJECT_ID=$NEXT_PUBLIC_SANITY_PROJECT_ID"
+              echo "NEXT_PUBLIC_SANITY_DATASET=$NEXT_PUBLIC_SANITY_DATASET"
+              echo "NEXT_PUBLIC_SANITY_API_VERSION=$NEXT_PUBLIC_SANITY_API_VERSION"
+              # Preserved so restarts don't drop the tunnel token.
+              grep -E '^CLOUDFLARE_TUNNEL_TOKEN=' .env 2>/dev/null || true
+              # Preserved for the same reason; the deploy server needs 8090
+              # because 8080 is already bound by another stack.
+              grep -E '^WEB_HOST_PORT=' .env 2>/dev/null || echo "WEB_HOST_PORT=8090"
+            } > .env
+            chmod 600 .env
+            docker compose --env-file .env up -d --build
+            docker image prune -f >/dev/null
+          REMOTE
+
+      - name: Verify the site responds
+        env:
+          SITE_URL: ${{ vars.SITE_URL || 'https://oud-idk.dev' }}
+        run: |
+          for i in $(seq 1 20); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "$SITE_URL/" || true)
+            if [ "$code" = "200" ]; then
+              echo "Deployed: $SITE_URL (200)"
+              exit 0
+            fi
+            echo "Attempt $i: got '$code', retrying..."
+            sleep 10
+          done
+          echo "::error::Site did not return 200 after deploy"
+          exit 1

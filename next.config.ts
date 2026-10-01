@@ -1,8 +1,22 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  reactCompiler: true,
+    // Emit a self-contained server bundle in .next/standalone so the Docker
+    // runtime stage can copy just that, instead of shipping node_modules.
+    output: "standalone",
+    reactCompiler: true,
+    experimental: {
+        inlineCss: true,
+    },
+    images: {
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'cdn.sanity.io',
+                pathname: '/**', // or just '/**' if you serve files/assets from there too!
+            },
+        ],
+    }
 };
 
 export default nextConfig;

@@ -1,0 +1,27 @@
+node_modules
+.next
+.git
+.gitignore
+.idea
+.vscode
+.smoke
+out
+
+# Secrets are passed as build args / runtime env, never copied in.
+.env
+.env.*
+!.env.example
+!.env.docker.example
+
+Dockerfile
+.dockerignore
+docker-compose.yml
+compose.yaml
+
+# Local perf/screenshot scratch tooling, not part of the build.
+scripts
+
+README.md
+*.md
+*.tsbuildinfo
+next-env.d.ts
