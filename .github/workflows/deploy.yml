@@ -107,23 +107,33 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Require .env on the deploy host
-        # Only the runtime secrets live here now: SANITY_API_TOKEN,
-        # CLOUDFLARE_TUNNEL_TOKEN, and WEB_HOST_PORT. The NEXT_PUBLIC_* values
-        # are baked into the image at build time, so they are not needed.
-        # This host already binds 8080 for another stack, so .env must set
-        # WEB_HOST_PORT=8090 or the publish will collide. Keep it at mode 600.
+      - name: Restore .env on the deploy host
+        # `actions/checkout` runs `git clean -ffdx`, which deletes any .env in
+        # the work tree -- including one placed there by hand. The real file
+        # therefore lives outside the checkout and is copied in per run.
+        #
+        # It holds only the runtime secrets: SANITY_API_TOKEN,
+        # CLOUDFLARE_TUNNEL_TOKEN, WEB_HOST_PORT. The NEXT_PUBLIC_* values are
+        # baked into the image at build time and are not needed here.
+        #
+        # This host already binds 8080 for another stack, so the file must set
+        # WEB_HOST_PORT=8090 or the publish will collide.
         run: |
           set -euo pipefail
-          if [ ! -s .env ]; then
-            echo "::error::.env is missing or empty on the deploy host; copy it there manually (see .env.docker.example)"
+          src="$HOME/.portfolio.env"
+          if [ ! -s "$src" ]; then
+            echo "::error::$src is missing or empty; copy it there once, mode 600 (see .env.docker.example)"
             exit 1
           fi
+          for key in SANITY_API_TOKEN CLOUDFLARE_TUNNEL_TOKEN WEB_HOST_PORT; do
+            if ! grep -qE "^${key}=.+" "$src"; then
+              echo "::error::$src is missing a non-empty $key"
+              exit 1
+            fi
+          done
+          install -m 600 "$src" .env
           # Names only — values are never printed.
           echo "keys present: $(grep -oE '^[A-Z0-9_]+' .env | tr '\n' ' ')"
-          if [ "$(stat -c '%a' .env)" != "600" ]; then
-            echo "::warning::.env is mode $(stat -c '%a' .env), expected 600"
-          fi
 
       - name: Pull and restart
         env:
