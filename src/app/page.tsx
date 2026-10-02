@@ -78,7 +78,7 @@ export default async function Home() {
                             rel="noopener noreferrer"
                             className={buttonVariants({ variant: "outline" })}
                         >
-                            GitHub ↗
+                            GitHub <ArrowUpRight/>
                         </a>
                     </div>
                 </section>
@@ -97,7 +97,7 @@ export default async function Home() {
                             href="/studio"
                             className={buttonVariants({ variant: "ghost", size: "sm" })}
                         >
-                            CMS Studio ↗
+                            CMS Studio <ArrowUpRight/>
                         </Link>
                     </div>
 
