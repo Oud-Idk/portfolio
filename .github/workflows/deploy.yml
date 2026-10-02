@@ -90,6 +90,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_ACTOR: ${{ github.actor }}
+          WEB_IMAGE: ${{ needs.build.outputs.image }} # Docker Compose reads this for image
         run: |
           set -e
           mkdir -p /opt/portfolio
