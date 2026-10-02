@@ -10,16 +10,19 @@ import rehypeKatex from "rehype-katex";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeExternalLinks from "rehype-external-links";
+import rehypeShiki from "@shikijs/rehype";
+import type { ShikiTransformer } from "shiki";
 
-/**
- * Single source of truth for the markdown pipeline, consumed server-side by
- * `MarkdownRenderer` (via `react-markdown`'s `MarkdownAsync`).
- *
- * The table of contents is collected from the tree these plugins produce, so a
- * plugin that reshapes headings cannot leave the ToC pointing at ids that no
- * longer exist. The collector is appended by the renderer — it has to run after
- * `rehype-slug`.
- */
+const languageTransformer: ShikiTransformer = {
+    name: "language-badge",
+    pre(node) {
+        node.properties["data-language"] = this.options.lang;
+    },
+    code(node) {
+        node.properties["data-block"] = "";
+    },
+};
+
 export const remarkPlugins: PluggableList = [remarkGfm, remarkMath, remarkBreaks, remarkDirective];
 
 export const rehypePlugins: PluggableList = [
@@ -28,4 +31,14 @@ export const rehypePlugins: PluggableList = [
     rehypeSlug,
     [rehypeAutolinkHeadings],
     [rehypeExternalLinks, { target: "_blank", rel: ["noopener", "noreferrer"] }],
+    [
+        rehypeShiki,
+        {
+            themes: {
+                light: "light-plus",
+                dark: "dark-plus",
+            },
+            transformers: [languageTransformer],
+        },
+    ],
 ];
