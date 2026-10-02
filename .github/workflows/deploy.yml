@@ -10,9 +10,12 @@ concurrency:
   group: deploy-production
   cancel-in-progress: false
 
+env:
+  REGISTRY: ghcr.io
+
 jobs:
   ci:
-    name: Lint & build
+    name: Lint & typecheck
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,86 +33,127 @@ jobs:
 
       - name: Typecheck
         run: npx tsc --noEmit
+      # No `npm run build` here: the image build below is the real build and
+      # fails just as loudly, so building twice would only cost time.
 
-      - name: Build
-        # NEXT_PUBLIC_* are inlined at build time, so the build needs them.
-        env:
-          NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
-          NEXT_PUBLIC_SANITY_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}
-          NEXT_PUBLIC_SANITY_API_VERSION: ${{ secrets.NEXT_PUBLIC_SANITY_API_VERSION }}
-        run: npm run build
-
-  deploy:
-    name: Deploy to server
-    # The image is built on the runner host, so `ci` acts as the gate.
+  build:
+    name: Build & push image
     needs: ci
-    # `production` avoids the default self-hosted Linux pool, which is shared
-    # with other jobs on this machine.
-    runs-on: [self-hosted, Linux, X64, production]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ steps.name.outputs.image }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Write .env
-        # Secrets are materialized here, on the deploy host, and never leave it.
-        # Existing values (tunnel token, host port) are preserved across runs.
-        env:
-          SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
-          NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
-          NEXT_PUBLIC_SANITY_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}
-          NEXT_PUBLIC_SANITY_API_VERSION: ${{ secrets.NEXT_PUBLIC_SANITY_API_VERSION }}
-          CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
+      # GHCR requires a lowercase path, and the repo owner is mixed case.
+      - id: name
+        name: Resolve image reference
+        # Pinned because the lowercasing below is a bash-ism.
+        shell: bash
         run: |
-          set -euo pipefail
-          touch .env
-          chmod 600 .env
-          set_env() {
-            # Replace the key if present, otherwise append it.
-            if grep -qE "^$1=" .env; then
-              # Use a temp file so the value never lands in shell history/logs.
-              KEY="$1" VAL="$2" python3 - <<'PY'
-          import os, pathlib
-          key, val = os.environ["KEY"], os.environ["VAL"]
-          p = pathlib.Path(".env")
-          lines = [f"{key}={val}" if l.startswith(key + "=") else l
-                   for l in p.read_text().splitlines() if l.strip()]
-          p.write_text("\n".join(lines) + "\n")
-          PY
-            else
-              printf '%s=%s\n' "$1" "$2" >> .env
-            fi
-          }
-          set_env SANITY_API_TOKEN "$SANITY_API_TOKEN"
-          set_env NEXT_PUBLIC_SANITY_PROJECT_ID "$NEXT_PUBLIC_SANITY_PROJECT_ID"
-          set_env NEXT_PUBLIC_SANITY_DATASET "$NEXT_PUBLIC_SANITY_DATASET"
-          set_env NEXT_PUBLIC_SANITY_API_VERSION "$NEXT_PUBLIC_SANITY_API_VERSION"
-          set_env CLOUDFLARE_TUNNEL_TOKEN "$CLOUDFLARE_TUNNEL_TOKEN"
-          # This host already binds 8080 for another stack, so publish on 8090.
-          set_env WEB_HOST_PORT 8090
-          set_env NEXT_PUBLIC_SITE_URL "${SITE_URL:-https://oud-idk.dev}"
-          echo "wrote .env with $(grep -cE '^[A-Z_]+=' .env) keys"
+          repo="${GITHUB_REPOSITORY,,}"
+          echo "image=${REGISTRY}/${repo}:${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          echo "prod=${REGISTRY}/${repo}:prod" >> "$GITHUB_OUTPUT"
 
-      - name: Build and restart
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          # `:prod` is the moving tag for manual runs; the sha tag is what the
+          # deploy job pins to, so a rollback is just a re-run of an old sha.
+          tags: |
+            ${{ steps.name.outputs.image }}
+            ${{ steps.name.outputs.prod }}
+          # NEXT_PUBLIC_* are inlined into the client bundle at build time, so
+          # they must be passed in. They are public by definition — anyone can
+          # read them from the shipped JS — so they live in repo `vars`, not
+          # `secrets`. The `vars` context is available in step `with:`.
+          build-args: |
+            NEXT_PUBLIC_SANITY_PROJECT_ID=${{ vars.NEXT_PUBLIC_SANITY_PROJECT_ID }}
+            NEXT_PUBLIC_SANITY_DATASET=${{ vars.NEXT_PUBLIC_SANITY_DATASET }}
+            NEXT_PUBLIC_SANITY_API_VERSION=${{ vars.NEXT_PUBLIC_SANITY_API_VERSION }}
+            NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    name: Deploy to server
+    # The image is built in CI and only pulled here, so `build` gates the rollout.
+    needs: [ci, build]
+    # `production` avoids the default self-hosted Linux pool, which is shared
+    # with other jobs on this machine.
+    runs-on: [self-hosted, Linux, X64, production]
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Require .env on the deploy host
+        # Only the runtime secrets live here now: SANITY_API_TOKEN,
+        # CLOUDFLARE_TUNNEL_TOKEN, and WEB_HOST_PORT. The NEXT_PUBLIC_* values
+        # are baked into the image at build time, so they are not needed.
+        # This host already binds 8080 for another stack, so .env must set
+        # WEB_HOST_PORT=8090 or the publish will collide. Keep it at mode 600.
         run: |
           set -euo pipefail
-          docker compose --env-file .env up -d --build
+          if [ ! -s .env ]; then
+            echo "::error::.env is missing or empty on the deploy host; copy it there manually (see .env.docker.example)"
+            exit 1
+          fi
+          # Names only — values are never printed.
+          echo "keys present: $(grep -oE '^[A-Z0-9_]+' .env | tr '\n' ' ')"
+          if [ "$(stat -c '%a' .env)" != "600" ]; then
+            echo "::warning::.env is mode $(stat -c '%a' .env), expected 600"
+          fi
+
+      - name: Pull and restart
+        env:
+          WEB_IMAGE: ${{ needs.build.outputs.image }}
+        run: |
+          set -euo pipefail
+          docker compose pull
+          # --no-build is the point of the split: never compile on the host, so
+          # a rebuild can't silently produce something other than CI's image.
+          docker compose up -d --no-build
           # Wait for the app's own healthcheck to pass.
           for i in $(seq 1 30); do
             status=$(docker inspect --format '{{.State.Health.Status}}' \
-              "$(docker compose --env-file .env ps -q web)" 2>/dev/null || echo none)
+              "$(docker compose ps -q web)" 2>/dev/null || echo none)
             if [ "$status" = "healthy" ]; then
               echo "web is healthy after ${i}0s"
               break
             fi
             if [ "$i" = "30" ]; then
               echo "::error::web never became healthy"
-              docker compose --env-file .env logs --tail 50 web
+              docker compose logs --tail 50 web
               exit 1
             fi
             sleep 10
           done
-          docker image prune -f > /dev/null
+          # `until` keeps anything a container is still using, so only superseded
+          # image layers from earlier deploys go.
+          docker image prune -f --filter until=168h > /dev/null
           echo "--- running services ---"
-          docker compose --env-file .env ps
+          docker compose ps
 
       - name: Verify the tunnel serves the site
         env:
@@ -125,5 +169,5 @@ jobs:
             sleep 10
           done
           echo "::error::$SITE_URL did not return 200"
-          docker compose --env-file .env logs --tail 30 cloudflared
+          docker compose logs --tail 30 cloudflared
           exit 1

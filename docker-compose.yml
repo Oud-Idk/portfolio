@@ -6,7 +6,10 @@ services:
         NEXT_PUBLIC_SANITY_PROJECT_ID: ${NEXT_PUBLIC_SANITY_PROJECT_ID:-}
         NEXT_PUBLIC_SANITY_DATASET: ${NEXT_PUBLIC_SANITY_DATASET:-}
         NEXT_PUBLIC_SANITY_API_VERSION: ${NEXT_PUBLIC_SANITY_API_VERSION:-}
-    image: portfolio-web:local
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-}
+    # Local dev builds to this tag; CI overrides WEB_IMAGE with the ghcr ref so
+    # `compose pull` fetches a prebuilt image instead of compiling on the host.
+    image: ${WEB_IMAGE:-portfolio-web:local}
     env_file:
       - path: .env.local
         required: false
