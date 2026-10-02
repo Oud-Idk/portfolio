@@ -21,12 +21,12 @@ const mainContent = `
 
 I create high-performance web applications built for speed, usability, and reliability.
 
-Too much modern software and web applications are filled with needless complexity, leading to slow loading times and reduced performance, which drives users away. My approach is **pragmatic**; simple and elegant websites that keeps users hooked without complexity.
+Much of modern software and most web applications are filled with needless complexity, leading to slow loading times and reduced performance, which drives users away. My approach is **pragmatic**: simple and elegant websites that keep users hooked, without complexity.
 `;
 
 const otherContent = `
 ### Values
-- **Speed & Performance**. Fast website retains more users. I make platforms that is exactly that.
+- **Speed & Performance**. A fast website retains more users. I build platforms that are exactly that.
 - **Universal Accessibility**. A great product should be usable by everyone.
 - **Clean, Maintainable Architecture**. I prioritize clear and dependable code over fragile, 'smart' shortcuts.
 
@@ -40,9 +40,9 @@ const otherContent = `
 
 > *"Simplicity is prerequisite for reliability."* - Edsger W. Dijkstra
 
-The best software doesn’t call attention to its complexity. The best onoe simply works. Whether developing a dashboard or a company profile, my goal is to deliver intuitive, resilient tools that respect your and your users' time.
+The best software doesn’t call attention to its complexity. The best one simply works. Whether that means a dashboard or a company profile, my goal is to deliver intuitive, resilient tools that respect your users' time.
 
-This website is a breathing example of my philosophy. I can write something like this, and it will still load instantly.
+This website is a living example of my philosophy. I can write something like this, and it will still load instantly.
 
 $$
 \\frac{\\partial \\mathbf{u}}{\\partial t} + (\\mathbf{u} \\cdot \\nabla)\\mathbf{u} = -\\frac{1}{\\rho}\\nabla p + \\nu \\nabla^2 \\mathbf{u} + \\mathbf{f}
