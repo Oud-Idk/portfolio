@@ -19,22 +19,41 @@ function extractText(node: ReactNode): string {
     return "";
 }
 
+/**
+ * react-markdown passes every component override the hast `node` alongside the
+ * real DOM props. Spreading it through emits `node="[object Object]"` into the
+ * markup, so drop it once, here, instead of at each call site.
+ */
+function withoutNode<T extends { node?: unknown }>(props: T): Omit<T, "node"> {
+    const { node, ...rest } = props;
+    void node;
+    return rest;
+}
+
 interface PreProps extends React.HTMLAttributes<HTMLPreElement> {
     "data-language"?: string;
     children?: ReactNode;
+    /** react-markdown's AST node. Never a valid DOM attribute — must be dropped. */
+    node?: unknown;
 }
 
 
-const CodeBlock = ({ children, "data-language": language, className, ...props }: PreProps) => {
+const CodeBlock = (raw: PreProps) => {
+    const { children, className, "data-language": language, ...props } = withoutNode(raw);
+
     if (!language && !className?.includes("shiki")) {
-        return <pre className={className} {...props}>{children}</pre>;
+        return (
+            <pre className={`${className ?? ""} border border-border rounded-xl`} {...props}>
+                {children}
+            </pre>
+        );
     }
 
     const code = extractText(children).replace(/\n$/, "");
     const languageName = language ? getLinguist(language) : "Plaintext";
 
     return (
-        <div className="relative group bg-surface-muted my-4 rounded-xl border border-border overflow-hidden shadow-xs transition-all">
+        <div className="relative group bg-surface my-4 rounded-xl border border-border overflow-hidden shadow-xs transition-all">
             <div className="flex items-center justify-between px-4 py-2 border-b border-border-subtle bg-surface/50 text-xs font-mono text-muted-foreground">
                 <span className="font-medium tracking-wide uppercase">{languageName ?? language}</span>
                 <CopyButton code={code} />
@@ -56,14 +75,16 @@ const markdownComponents: Components & Record<string, React.ElementType> = {
     p({ children }) {
         return <p className="mb-4 leading-relaxed text-foreground">{children}</p>;
     },
-    code({ className, children, ...props }: React.ComponentProps<"code"> & { "data-block"?: string }) {
+    code(raw: React.ComponentProps<"code"> & { "data-block"?: string; node?: unknown }) {
+        const { className, children, ...props } = withoutNode(raw);
+
         if ("data-block" in props) {
             return <code className={className} {...props}>{children}</code>;
         }
 
         return (
             <code
-                className={`${className ?? ""} bg-surface-muted text-foreground border border-border-subtle px-1.5 py-0.5 rounded-md text-xs font-mono font-normal inline-block`}
+                className={`${className ?? ""} bg-surface text-foreground border border-border px-1.5 py-0.5 rounded-md text-xs font-mono font-normal inline-block`}
                 style={{ fontFamily: "var(--font-geist-mono)" }}
                 {...props}
             >
@@ -82,12 +103,13 @@ const markdownComponents: Components & Record<string, React.ElementType> = {
             />
         );
     },
-    a(props) {
-        const { className, ...rest } = props;
+    a(raw: React.ComponentProps<"a"> & { node?: unknown }) {
+        const { className, ...props } = withoutNode(raw);
+
         return (
             <a
-                className={`${className ?? ""} text-brand hover:text-brand-hover underline underline-offset-4 decoration-brand/40 hover:decoration-brand font-medium transition-colors wrap-break-word break-all focus-ring rounded-xs`}
-                {...rest}
+                className={`${className ?? ""} text-link hover:text-link-hover underline underline-offset-4 decoration-link/40 hover:decoration-link-hover font-medium transition-colors wrap-break-word break-all focus-ring rounded-xs`}
+                {...props}
             />
         );
     },
@@ -124,7 +146,8 @@ export async function MarkdownRenderer({ content, className, headings }: Markdow
                 prose-headings:scroll-mt-24
                 prose-headings:text-foreground prose-headings:font-semibold prose-headings:tracking-tight prose-h1:mt-8
                 prose-h2:text-xl prose-h2:mb-3 prose-li:my-0
-                prose-blockquote:border-l-brand prose-blockquote:bg-surface-muted/20 prose-blockquote:py-0.5 prose-blockquote:px-4 prose-blockquote:rounded-r-xl prose-blockquote:not-italic
+                prose-blockquote:border-l-brand prose-blockquote:py-0.5 prose-blockquote:px-4 prose-blockquote:rounded-r-xl prose-blockquote:not-italic
+                prose-pre:bg-surface
                 prose-img:rounded-xl prose-img:border prose-img:border-border
             `}
         >

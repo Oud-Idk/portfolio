@@ -93,7 +93,6 @@ jobs:
           WEB_IMAGE: ${{ needs.build.outputs.image }} # Docker Compose reads this for image
         run: |
           set -e
-          mkdir -p /opt/portfolio
           cd /opt/portfolio
 
           echo "$GH_TOKEN" | docker login ghcr.io -u "$GH_ACTOR" --password-stdin

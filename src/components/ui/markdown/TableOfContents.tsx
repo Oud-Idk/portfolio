@@ -177,9 +177,8 @@ export const TableOfContents: React.FC<TableOfContentsProps> = ({ containerRef, 
                 On This Page
             </h4>
             <div className="relative border-l border-border/60 pl-2">
-                {/* Active indicator bar on main root border */}
                 <div
-                    className="absolute -left-px w-0.5 bg-brand rounded-full transition-all duration-300 ease-out pointer-events-none"
+                    className="absolute -left-px w-0.5 bg-brand-active rounded-full transition-all duration-300 ease-out pointer-events-none"
                     style={{
                         top: indicator.top,
                         height: indicator.height,
@@ -223,7 +222,7 @@ export const TableOfContents: React.FC<TableOfContentsProps> = ({ containerRef, 
                                                     <span
                                                         className={`absolute left-2 top-0 bottom-0 w-px transition-colors duration-200 ${
                                                             isActive
-                                                                ? "bg-brand/40"
+                                                                ? "bg-brand-active/40"
                                                                 : "bg-border/60"
                                                         }`}
                                                     />
@@ -233,7 +232,7 @@ export const TableOfContents: React.FC<TableOfContentsProps> = ({ containerRef, 
                                                         <span
                                                             className={`absolute left-2 top-1/2 -translate-y-1/2 w-2 h-px transition-colors duration-200 ${
                                                                 isActive
-                                                                    ? "bg-brand/50"
+                                                                    ? "bg-brand-active/50"
                                                                     : "bg-border/60"
                                                             }`}
                                                         />
@@ -252,9 +251,9 @@ export const TableOfContents: React.FC<TableOfContentsProps> = ({ containerRef, 
                                         e.preventDefault();
                                         scrollToHeading(id);
                                     }}
-                                    className={`w-full  rounded-md px-2 py-1.5 text-left leading-snug transition-colors duration-200 cursor-pointer hover:bg-muted/80 hover:text-foreground ${
+                                    className={`w-full rounded-md px-2 py-1.5 text-left leading-snug transition-colors duration-200 cursor-pointer hover:bg-muted/80 hover:text-foreground ${
                                         isActive
-                                            ? "text-brand bg-muted/40"
+                                            ? "text-brand-active bg-muted/40"
                                             : "text-muted-foreground"
                                     }`}
                                 >

@@ -17,18 +17,19 @@ import { MarkdownRenderer } from "@/components/ui/markdown/MarkdownRenderer";
 import { ArrowUpRight } from "lucide-react";
 
 const mainContent = `
-## Full-Stack Software Engineer
+## Full-Stack Developer
 
-I create high-performance web applications built for speed, usability, and reliability.
+I make high-performance web applications with emphasis on reliability, durability, accessibility, speed.
 
-Much of modern software and most web applications are filled with needless complexity, leading to slow loading times and reduced performance, which drives users away. My approach is **pragmatic**: simple and elegant websites that keep users hooked, without complexity.
+Most web applications are filled with needless complexity and distracting elements, leading to slow loading times, reduced performance, and accessibility issues, which doesn't retain users, and therefore, leads to lost revenue. My approach is **pragmatic**: simple enough to be universal while elegant enough to keep users hooked.
 `;
 
 const otherContent = `
 ### Values
-- **Speed & Performance**. A fast website retains more users. I build platforms that are exactly that.
+- **Speed & Performance**. A fast website retains more users.
 - **Universal Accessibility**. A great product should be usable by everyone.
 - **Clean, Maintainable Architecture**. I prioritize clear and dependable code over fragile, 'smart' shortcuts.
+- **Reliable**: Graceful failure handling.
 
 ## Technical Competencies
 
@@ -54,6 +55,15 @@ export default async function Home() {
 
     return (
         <div className="min-h-screen text-foreground antialiased">
+            <div className="pointer-events-none absolute top-0 left-1/2 -z-10 -translate-x-1/2 -translate-y-1/2 w-full blur-[90px] h-10 bg-primary/40" />
+
+            <div
+                aria-hidden="true"
+                className="pointer-events-none fixed inset-0 -z-10 h-full w-full opacity-70
+                bg-[radial-gradient(var(--color-border)_1px,transparent_1px)]
+                bg-size-[16px_16px]
+                mask-[radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]"
+            />
             <main className="mx-auto flex max-w-7xl flex-col gap-8">
                 <section className="flex flex-col items-start gap-2">
                     <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
@@ -64,9 +74,9 @@ export default async function Home() {
                         &quot;If your website is not accessible, easy to use, and simple to look at... what&apos;s the point?&quot;
                     </p>
 
-                    <div className="flex items-center gap-3 pt-4">
+                    <div className="flex items-center gap-4">
                         <a
-                            href="mailto:d.japaryo@gmail.com"
+                            href="mailto:dayton@oud-idk.dev"
                             className={buttonVariants()}
                         >
                             Get in touch
@@ -80,6 +90,7 @@ export default async function Home() {
                         >
                             GitHub <ArrowUpRight/>
                         </a>
+                        <MarkdownRenderer content="Or email `dayton@oud-idk.dev`" className="-my-4"/>
                     </div>
                 </section>
 
@@ -87,7 +98,7 @@ export default async function Home() {
 
                 <Separator />
 
-                <section className="flex flex-col gap-2">
+                <section className="flex flex-col gap-6">
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="text-xl font-bold tracking-tight">Some Projects</h2>
@@ -188,7 +199,7 @@ export default async function Home() {
                         <a href="https://github.com/Oud-Idk" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">
                             GitHub
                         </a>
-                        <a href="mailto:d.japaryo@gmail.com" className="hover:text-foreground">
+                        <a href="mailto:dayton@oud-idk.dev" className="hover:text-foreground">
                             Email
                         </a>
                     </div>

@@ -20,9 +20,21 @@
   --focus-ring: oklch(0.6 0.2 264 / 0.5);
 
   --brand: oklch(0.6 0.2 264);
-  --brand-hover: oklch(0.53 0.2 264);
-  --brand-subtle: oklch(0.95 0.04 264);
-  --brand-foreground: oklch(0.99 0 0);
+
+  /* Brand-coloured *content* on the page — text and thin graphics, never a fill.
+     Sits alongside --foreground / --muted-foreground. Deep in light, light in
+     dark, so links always read against --background.
+     Measured: --link 5.1:1, --link-hover 7.2:1 on background (light). */
+  --link: oklch(0.53 0.2 264);
+  --link-hover: oklch(0.45 0.19 264);
+
+  /* Solid fills (button/badge/avatar) run deeper than --brand and always take a
+     near-white label. A mid-lightness brand tops out around 4.6:1 against
+     either white or near-black text, so the fill itself has to move to buy real
+     headroom. Measured against --primary-foreground: 6.1:1 light, 4.9:1 dark. */
+  --primary: oklch(0.5 0.2 264);
+  --primary-hover: oklch(0.44 0.21 264);
+  --primary-foreground: oklch(0.99 0 0);
 
   --danger: oklch(0.58 0.24 27);
   --danger-hover: oklch(0.51 0.24 27);
@@ -41,23 +53,26 @@
 }
 
 .dark {
-  --background: oklch(0.14 0 0);
-  --surface: oklch(0.17 0 0);
-  --surface-muted: oklch(0.15 0 0);
-  --surface-elevated: oklch(0.2 0 0);
-  --surface-active: oklch(0.22 0 0);
+  --background: oklch(0.176 0 0);
+  --surface: oklch(0.193 0 0);
+  --surface-muted: oklch(0.23 0 0);
+  --surface-elevated: oklch(0.26 0 0);
+  --surface-active: oklch(0.32 0 0);
   --overlay: oklch(0 0 0 / 0.7);
 
   --foreground: oklch(0.96 0 0);
-  --muted-foreground: oklch(0.62 0 0);
+  --muted-foreground: oklch(0.75 0 0);
   --border: oklch(0.28 0 0);
   --border-subtle: oklch(0.22 0 0);
   --focus-ring: oklch(0.68 0.2 264 / 0.5);
 
-  --brand: oklch(0.575 0.2 264);
-  --brand-hover: oklch(0.6 0.2 264);
-  --brand-subtle: oklch(0.22 0.06 264);
-  --brand-foreground: oklch(0.99 0 0);
+  --brand: oklch(0.56 0.2 264);
+  --link: oklch(0.625 0.2 264);
+  --link-hover: oklch(0.7 0.2 264);
+
+  --primary: oklch(0.55 0.21 264);
+  --primary-hover: oklch(0.5 0.21 264);
+  --primary-foreground: oklch(0.99 0 0);
 
   --danger: oklch(0.7 0.24 27);
   --danger-hover: oklch(0.6 0.24 27);
@@ -74,20 +89,12 @@
   --info-subtle: oklch(0.22 0.05 230);
 }
 
-/* ---------------------------------------------------------------------------
- * shadcn semantic tokens, aliased onto the primitives above.
- * Declared once (not per-mode) because they resolve through var(), so the
- * `.dark` primitive overrides cascade automatically.
- * ------------------------------------------------------------------------- */
-
 :root {
   --card: var(--surface);
   --card-foreground: var(--foreground);
   --popover: var(--surface-elevated);
   --popover-foreground: var(--foreground);
 
-  --primary: var(--brand);
-  --primary-foreground: var(--brand-foreground);
   --secondary: var(--surface-muted);
   --secondary-foreground: var(--foreground);
   --muted: var(--surface-active);
@@ -98,12 +105,14 @@
   --input: var(--border);
   --ring: var(--brand);
 
+  --brand-active: var(--link-hover);
+
   --radius: 0.625rem;
 
   --sidebar: var(--surface);
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--brand);
-  --sidebar-primary-foreground: var(--brand-foreground);
+  --sidebar-primary-foreground: var(--primary-foreground);
   --sidebar-accent: var(--surface-active);
   --sidebar-accent-foreground: var(--foreground);
   --sidebar-border: var(--border);
@@ -123,10 +132,13 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-link: var(--link);
+  --color-link-hover: var(--link-hover);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
@@ -159,9 +171,7 @@
   --color-border-subtle: var(--border-subtle);
   --color-focus-ring: var(--focus-ring);
   --color-brand: var(--brand);
-  --color-brand-hover: var(--brand-hover);
-  --color-brand-subtle: var(--brand-subtle);
-  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-active: var(--brand-active);
   --color-danger: var(--danger);
   --color-danger-hover: var(--danger-hover);
   --color-danger-subtle: var(--danger-subtle);
