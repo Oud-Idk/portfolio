@@ -89,11 +89,11 @@ export default async function Home() {
                         >
                             GitHub <ArrowUpRight/>
                         </a>
-                        <MarkdownRenderer content="Or email `dayton@oud-idk.dev`" className="-my-4"/>
+                        {(await MarkdownRenderer({ content: "Or email `dayton@oud-idk.dev`", className: "-my-4" }))}
                     </div>
                 </section>
 
-                <MarkdownRenderer content={mainContent} className="stagger-prose" />
+                {(await MarkdownRenderer({ content: mainContent, className: "stagger-prose" }))}
 
                 <Separator />
 
@@ -197,7 +197,7 @@ export default async function Home() {
 
                 <Separator />
 
-                <MarkdownRenderer content={otherContent} className="stagger-prose" />
+                {(await MarkdownRenderer({ content: otherContent, className: "stagger-prose" }))}
 
                 <footer className="flex items-center justify-between border-t border-border pt-8 text-xs text-muted-foreground">
                     <p>© {new Date().getFullYear()} Oud • Built with Next.js & Sanity</p>

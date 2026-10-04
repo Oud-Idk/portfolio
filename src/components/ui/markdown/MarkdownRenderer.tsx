@@ -125,18 +125,44 @@ export interface MarkdownRendererProps {
  * Server component: parses and renders markdown here, so the browser receives
  * finished markup instead of the source plus a parser.
  */
-export async function MarkdownRenderer({ content, className, headings }: MarkdownRendererProps) {
-    const rehype: PluggableList = headings
-        ? [...rehypePlugins, [rehypeCollectHeadings, { into: headings }]]
-        : rehypePlugins;
+/**
+ * Cross-request cache of rendered markdown. The Shiki highlighter and KaTeX
+ * are expensive (~1s+ cold each), and the body copy rarely changes, so we
+ * render once per unique (content, headings) key and reuse the elements.
+ */
+const markdownCache = new Map<string, Promise<{ body: ReactNode; headings: TocItem[] }>>();
 
-    // Must await to render elements for ToC
-    const body = await MarkdownAsync({
-        remarkPlugins,
-        rehypePlugins: rehype,
-        components: markdownComponents,
-        children: content ?? "",
+function getMarkdownBody(content: string, headings?: TocItem[]): Promise<ReactNode> {
+    return getMarkdown(content, headings !== undefined).then((r) => {
+        if (headings !== undefined) headings.push(...r.headings);
+        return r.body;
     });
+}
+
+function getMarkdown(content: string, collectToc: boolean): Promise<{ body: ReactNode; headings: TocItem[] }> {
+    const key = `${collectToc ? "toc" : "plain"}:${content}`;
+    let hit = markdownCache.get(key);
+    if (!hit) {
+        const collected: TocItem[] = [];
+        const rehype: PluggableList = collectToc
+            ? [...rehypePlugins, [rehypeCollectHeadings, { into: collected }]]
+            : rehypePlugins;
+
+        hit = MarkdownAsync({
+            remarkPlugins,
+            rehypePlugins: rehype,
+            components: markdownComponents,
+            children: content,
+        }).then((body) => ({ body, headings: collected }));
+        hit.catch(() => markdownCache.delete(key));
+        markdownCache.set(key, hit);
+    }
+    return hit;
+}
+
+export async function MarkdownRenderer({ content, className, headings }: MarkdownRendererProps) {
+    // Must await to render elements for ToC
+    const body = await getMarkdownBody(content ?? "", headings);
 
     return (
         <div

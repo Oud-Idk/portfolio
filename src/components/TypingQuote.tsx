@@ -14,25 +14,32 @@ export function TypingQuote() {
         }
 
         let i = 0;
-        const id = setTimeout(() => { setInterval(() => {
-            i += 1;
-            setText(QUOTE.slice(0, i));
-            if (i >= QUOTE.length) clearInterval(id);
-        }, 40) }, 150);
+        let intervalId: ReturnType<typeof setInterval> | undefined;
+        const timeoutId = setTimeout(() => {
+            intervalId = setInterval(() => {
+                i += 1;
+                setText(QUOTE.slice(0, i));
+                if (i >= QUOTE.length) clearInterval(intervalId);
+            }, 40);
+        }, 150);
 
-        return () => clearInterval(id);
+        return () => {
+            clearTimeout(timeoutId);
+            if (intervalId !== undefined) clearInterval(intervalId);
+        };
     }, []);
 
     return (
-        <p className="text-lg leading-relaxed text-muted-foreground">
+        <p className="relative text-lg leading-relaxed text-muted-foreground">
             <span className="sr-only">&quot;{QUOTE}&quot;</span>
-            <span aria-hidden="true" className="hidden motion-reduce:inline">&quot;{QUOTE}&quot;</span>
-            <span aria-hidden="true" className="motion-reduce:hidden">
+            {/* Reserves the final layout space so typing doesn't trigger CLS */}
+            <span aria-hidden="true" className="invisible motion-reduce:visible">
+                &quot;{QUOTE}&quot;
+            </span>
+            {/* Motion allowed: typing effect overlays the reserved space */}
+            <span aria-hidden="true" className="absolute inset-0 motion-reduce:hidden">
                 &quot;{text}
-                <span
-                    aria-hidden="true"
-                    className="animate-[blink_1s_step-end_infinite] text-foreground -mx-0.75"
-                >
+                <span className="animate-[blink_1s_step-end_infinite] text-foreground -mx-0.75">
                     |
                 </span>
                 &quot;

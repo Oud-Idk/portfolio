@@ -123,7 +123,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 <Separator />
 
                 {project.content ? (
-                    <MarkdownWithToc content={project.content} />
+                    (await MarkdownWithToc({ content: project.content }))
                 ) : (
                     <p className="text-sm text-muted-foreground">
                         This project doesn&apos;t have a write-up yet.
