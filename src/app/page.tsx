@@ -123,7 +123,13 @@ export default async function Home() {
                                 <Card
                                     key={project._id}
                                     style={{ animationDelay: `${150 + Math.min(index, 8) * 75}ms` }}
-                                    className="group flex flex-col justify-between transition-all duration-300 ease-out hover:-translate-y-1 hover:border-foreground/30 hover:shadow-md motion-reduce:transition-none motion-reduce:hover:translate-y-0 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-backwards motion-reduce:animate-none"
+                                    className="group flex flex-col justify-between transition-all duration-300 ease-out
+                                    hover:-translate-y-1 motion-reduce:transition-none
+                                    motion-reduce:hover:translate-y-0 animate-in fade-in slide-in-from-bottom-4
+                                    fill-mode-backwards motion-reduce:animate-none border hover:border-foreground
+                                    hover:shadow-foreground hover:shadow-[0px_0px_34px_-15px_rgba(0,0,0,0.1)]
+                                    motion-reduce:hover:shadow-md motion-reduce:hover:shadow-background
+                                    motion-reduce:hover:border-border"
                                 >
                                     <CardHeader>
                                         <CardTitle className="text-lg font-semibold">

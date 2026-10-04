@@ -10,30 +10,33 @@ export function TypingQuote() {
 
     useEffect(() => {
         if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-            setText(QUOTE);
             return;
         }
 
         let i = 0;
-        const id = setInterval(() => {
+        const id = setTimeout(() => { setInterval(() => {
             i += 1;
             setText(QUOTE.slice(0, i));
             if (i >= QUOTE.length) clearInterval(id);
-        }, 30);
+        }, 40) }, 150);
 
         return () => clearInterval(id);
     }, []);
 
     return (
         <p className="text-lg leading-relaxed text-muted-foreground">
-            &quot;{text}
-            <span
-                aria-hidden="true"
-                className="animate-[blink_1s_step-end_infinite] text-foreground"
-            >
-                |
+            <span className="sr-only">&quot;{QUOTE}&quot;</span>
+            <span aria-hidden="true" className="hidden motion-reduce:inline">&quot;{QUOTE}&quot;</span>
+            <span aria-hidden="true" className="motion-reduce:hidden">
+                &quot;{text}
+                <span
+                    aria-hidden="true"
+                    className="animate-[blink_1s_step-end_infinite] text-foreground -mx-0.75"
+                >
+                    |
+                </span>
+                &quot;
             </span>
-            &quot;
         </p>
     );
 }
