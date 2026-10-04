@@ -14,6 +14,7 @@ import {
     CardFooter,
 } from "@/components/ui/card";
 import { MarkdownRenderer } from "@/components/ui/markdown/MarkdownRenderer";
+import { TypingQuote } from "@/components/TypingQuote";
 import { ArrowUpRight } from "lucide-react";
 
 const mainContent = `
@@ -66,15 +67,13 @@ export default async function Home() {
             />
             <main className="mx-auto flex max-w-7xl flex-col gap-8">
                 <section className="flex flex-col items-start gap-2">
-                    <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+                    <h1 className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-backwards motion-reduce:animate-none text-3xl font-bold tracking-tight sm:text-4xl">
                         Hi, I&apos;m Dayton Glenn Japaryo.
                     </h1>
 
-                    <p className="text-lg leading-relaxed text-muted-foreground">
-                        &quot;If your website is not accessible, easy to use, and simple to look at... what&apos;s the point?&quot;
-                    </p>
+                    <TypingQuote />
 
-                    <div className="flex items-center gap-4">
+                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200 fill-mode-backwards motion-reduce:animate-none flex items-center gap-4">
                         <a
                             href="mailto:dayton@oud-idk.dev"
                             className={buttonVariants()}
@@ -94,7 +93,7 @@ export default async function Home() {
                     </div>
                 </section>
 
-                <MarkdownRenderer content={mainContent} />
+                <MarkdownRenderer content={mainContent} className="stagger-prose" />
 
                 <Separator />
 
@@ -120,10 +119,11 @@ export default async function Home() {
                         </Card>
                     ) : (
                         <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
-                            {projects.map((project) => (
+                            {projects.map((project, index) => (
                                 <Card
                                     key={project._id}
-                                    className="group flex flex-col justify-between transition-all hover:border-foreground/30 hover:shadow-sm"
+                                    style={{ animationDelay: `${150 + Math.min(index, 8) * 75}ms` }}
+                                    className="group flex flex-col justify-between transition-all duration-300 ease-out hover:-translate-y-1 hover:border-foreground/30 hover:shadow-md motion-reduce:transition-none motion-reduce:hover:translate-y-0 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-backwards motion-reduce:animate-none"
                                 >
                                     <CardHeader>
                                         <CardTitle className="text-lg font-semibold">
@@ -191,7 +191,7 @@ export default async function Home() {
 
                 <Separator />
 
-                <MarkdownRenderer content={otherContent} />
+                <MarkdownRenderer content={otherContent} className="stagger-prose" />
 
                 <footer className="flex items-center justify-between border-t border-border pt-8 text-xs text-muted-foreground">
                     <p>© {new Date().getFullYear()} Oud • Built with Next.js & Sanity</p>
