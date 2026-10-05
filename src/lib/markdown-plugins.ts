@@ -6,6 +6,25 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import remarkBreaks from "remark-breaks";
 import remarkDirective from "remark-directive";
+import type { Root as MdastRoot } from "mdast";
+
+/**
+ * Turns `:::sidebyside` container directives into a `<div class="sidebyside">`
+ * via mdast-util-to-hast's `data.hName`/`data.hProperties` passthrough.
+ */
+const remarkSideBySide = () => (tree: MdastRoot) => {
+    visit(tree, (node) => {
+        if (
+            node.type === "containerDirective" &&
+            (node as { name?: string }).name === "sidebyside"
+        ) {
+            const n = node as unknown as { data?: Record<string, unknown> };
+            n.data = n.data ?? {};
+            n.data.hName = "div";
+            n.data.hProperties = { className: "sidebyside" };
+        }
+    });
+};
 
 import rehypeRaw from "rehype-raw";
 import rehypeKatex from "rehype-katex";
@@ -46,7 +65,7 @@ const rehypeMarkBlockCode = () => (tree: Root) => {
     });
 };
 
-export const remarkPlugins: PluggableList = [remarkGfm, remarkMath, remarkBreaks, remarkDirective];
+export const remarkPlugins: PluggableList = [remarkGfm, remarkMath, remarkBreaks, remarkDirective, remarkSideBySide];
 
 export const rehypePlugins: PluggableList = [
     rehypeRaw,

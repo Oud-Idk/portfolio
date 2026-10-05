@@ -297,6 +297,31 @@ blockquote {
   content: normal;
 }
 
+/* Side-by-side images via :::sidebyside directive */
+.sidebyside {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 640px) {
+  .sidebyside {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.sidebyside > p {
+  margin: 0;
+}
+
+.sidebyside img {
+  width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+}
+
 .shiki,
 .shiki span {
     color: var(--shiki-light);
