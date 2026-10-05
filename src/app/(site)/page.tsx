@@ -1,18 +1,11 @@
 import Link from "next/link";
-import { getProjects } from "@/sanity/lib/queries";
+import { getProjects, getPosts } from "@/sanity/lib/queries";
 
 // shadcn components
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-import {
-    Card,
-    CardHeader,
-    CardTitle,
-    CardDescription,
-    CardContent,
-    CardFooter,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { ProjectCard } from "@/components/ProjectCard";
 import { MarkdownRenderer } from "@/components/ui/markdown/MarkdownRenderer";
 import { TypingQuote } from "@/components/TypingQuote";
 import { ArrowUpRight } from "lucide-react";
@@ -42,7 +35,7 @@ const otherContent = `
 
 > *"Simplicity is prerequisite for reliability."* - Edsger W. Dijkstra
 
-The best software doesn’t call attention to its complexity. The best one simply works. Whether that means a dashboard or a company profile, my goal is to deliver intuitive, resilient tools that respect your users' time.
+The best software doesn’t show off. The best one simply works. Whether that means a dashboard, a company profile, or a portfolio, my goal is to deliver intuiitive tools that respect your users' time.
 
 This website is a living example of my philosophy. I can write something like this, and it will still load instantly.
 
@@ -53,6 +46,7 @@ $$
 
 export default async function Home() {
     const projects = await getProjects();
+    const recentPosts = (await getPosts()).slice(0, 5);
 
     return (
         <div className="min-h-screen text-foreground antialiased">
@@ -120,76 +114,7 @@ export default async function Home() {
                     ) : (
                         <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
                             {projects.map((project, index) => (
-                                <Card
-                                    key={project._id}
-                                    style={{ animationDelay: `${150 + Math.min(index, 8) * 75}ms` }}
-                                    className="group flex flex-col justify-between transition-all duration-300 ease-out
-                                    hover:-translate-y-1 motion-reduce:transition-none
-                                    motion-reduce:hover:translate-y-0 animate-in fade-in slide-in-from-bottom-4
-                                    fill-mode-backwards motion-reduce:animate-none border hover:border-foreground
-                                    hover:shadow-foreground hover:shadow-[0px_0px_34px_-15px_rgba(0,0,0,0.1)]
-                                    motion-reduce:hover:shadow-md motion-reduce:hover:shadow-background
-                                    motion-reduce:hover:border-border"
-                                >
-                                    <CardHeader>
-                                        <CardTitle className="text-lg font-semibold">
-                                            {project.slug ? (
-                                                <Link
-                                                    href={`/projects/${project.slug}`}
-                                                    className="outline-none focus-ring"
-                                                >
-                                                    {project.title}
-                                                </Link>
-                                            ) : (
-                                                project.title
-                                            )}
-                                        </CardTitle>
-                                        <CardDescription>
-                                            {project.summary || "No description provided."}
-                                        </CardDescription>
-                                    </CardHeader>
-
-                                    <CardContent>
-                                        <div className="flex flex-wrap gap-1.5">
-                                            {project.tags?.map((tag) => (
-                                                <Badge key={tag} variant="secondary" className="text-xs font-normal">
-                                                    {tag}
-                                                </Badge>
-                                            ))}
-                                        </div>
-                                    </CardContent>
-
-                                    <CardFooter className="flex justify-end gap-2 border-t pt-4">
-                                        {project.slug && (
-                                            <Link
-                                                href={`/projects/${project.slug}`}
-                                                className={buttonVariants({ variant: "ghost", size: "sm" })}
-                                            >
-                                                Write-up -&gt;
-                                            </Link>
-                                        )}
-                                        {project.githubUrl && (
-                                            <a
-                                                href={project.githubUrl}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className={buttonVariants({ variant: "ghost", size: "sm" })}
-                                            >
-                                                Code
-                                            </a>
-                                        )}
-                                        {project.liveUrl && (
-                                            <a
-                                                href={project.liveUrl}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className={buttonVariants({ variant: "default", size: "sm" })}
-                                            >
-                                                Live Demo <ArrowUpRight/>
-                                            </a>
-                                        )}
-                                    </CardFooter>
-                                </Card>
+                                <ProjectCard key={project._id} project={project} index={index} />
                             ))}
                         </div>
                     )}
@@ -198,6 +123,54 @@ export default async function Home() {
                 <Separator />
 
                 {(await MarkdownRenderer({ content: otherContent, className: "stagger-prose" }))}
+
+                <Separator />
+
+                <section className="flex flex-col gap-6">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-xl font-bold tracking-tight">Recent Blogs</h2>
+
+                        <Link
+                            href="/blog"
+                            className={buttonVariants({ variant: "ghost", size: "sm" })}
+                        >
+                            All posts -&gt;
+                        </Link>
+                    </div>
+
+                    {recentPosts.length === 0 ? (
+                        <Card className="border-dashed p-10 text-center bg-transparent">
+                            <p className="text-sm text-muted-foreground">
+                                No posts yet. Check back soon.
+                            </p>
+                        </Card>
+                    ) : (
+                        <ul className="flex flex-col divide-y divide-border">
+                            {recentPosts.map((post) => (
+                                <li key={post._id} className="flex items-baseline justify-between gap-4 py-3">
+                                    <Link
+                                        href={post.slug ? `/blog/${post.slug}` : "/blog"}
+                                        className="text-link hover:text-link-hover underline underline-offset-4 decoration-link/40 hover:decoration-link-hover font-medium transition-colors wrap-break-word break-all focus-ring rounded-xs"
+                                    >
+                                        {post.title}
+                                    </Link>
+                                    {post.publishedAt && (
+                                        <time
+                                            dateTime={post.publishedAt}
+                                            className="shrink-0 text-xs text-muted-foreground"
+                                        >
+                                            {new Date(post.publishedAt).toLocaleDateString("en-US", {
+                                                year: "numeric",
+                                                month: "short",
+                                                day: "numeric",
+                                            })}
+                                        </time>
+                                    )}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </section>
 
                 <footer className="flex items-center justify-between border-t border-border pt-8 text-xs text-muted-foreground">
                     <p>© {new Date().getFullYear()} Oud • Built with Next.js & Sanity</p>
