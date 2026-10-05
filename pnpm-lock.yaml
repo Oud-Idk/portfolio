@@ -105,6 +105,9 @@ importers:
       shadcn:
         specifier: ^4.21.1
         version: 4.21.1(supports-color@8.1.1)(typescript@5.9.3)
+      shiki:
+        specifier: ^4.5.0
+        version: 4.5.0
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
@@ -121,6 +124,12 @@ importers:
       '@tailwindcss/typography':
         specifier: ^0.5.20
         version: 0.5.20(tailwindcss@4.3.3)
+      '@types/hast':
+        specifier: ^3.0.5
+        version: 3.0.5
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
       '@types/node':
         specifier: ^20
         version: 20.19.43
