@@ -43,6 +43,9 @@ export const metadata: Metadata = {
             "Full-stack engineer building fast, accessible web applications. React, Next.js, TypeScript, Node.js, Rust, and PostgreSQL.",
     },
     robots: { index: true, follow: true },
+    alternates: {
+        types: { "application/atom+xml": "/atom.xml" },
+    },
 };
 
 interface RootLayoutProps {

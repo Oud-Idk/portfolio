@@ -16,7 +16,14 @@ const nextConfig: NextConfig = {
                 pathname: '/**', // or just '/**' if you serve files/assets from there too!
             },
         ],
-    }
+    },
+    async rewrites() {
+        return [
+            { source: "/rss.xml", destination: "/atom.xml" },
+            { source: "/feed.xml", destination: "/atom.xml" },
+            { source: "/feed", destination: "/atom.xml" },
+        ];
+    },
 };
 
 export default nextConfig;
