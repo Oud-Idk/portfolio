@@ -1,7 +1,9 @@
 import { defineConfig } from 'sanity'
 import { structureTool } from 'sanity/structure'
+import { markdownSchema } from 'sanity-plugin-markdown'
 
 import { projectType } from './sanity/schemaTypes/projectType'
+import { postType } from './sanity/schemaTypes/postType'
 
 export default defineConfig({
     name: 'default',
@@ -9,8 +11,8 @@ export default defineConfig({
     projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
     dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
     basePath: '/studio',
-    plugins: [structureTool()],
+    plugins: [structureTool(), markdownSchema()],
     schema: {
-        types: [projectType],
+        types: [projectType, postType],
     },
 })

@@ -17,6 +17,47 @@ export interface ProjectDetail extends Project {
     content?: string;
 }
 
+export interface Post {
+    _id: string;
+    title: string;
+    slug?: string;
+    excerpt?: string;
+    tags?: string[];
+    author?: string;
+    publishedAt?: string;
+    featured?: boolean;
+    coverImage?: SanityImageSource;
+}
+
+export interface PostDetail extends Post {
+    content?: string;
+}
+
+export const POSTS_QUERY = `*[_type == "post"] | order(publishedAt desc) {
+  _id,
+  title,
+  "slug": slug.current,
+  excerpt,
+  tags,
+  author,
+  publishedAt,
+  featured,
+  coverImage
+}`;
+
+export const POST_QUERY = `*[_type == "post" && slug.current == $slug][0] {
+  _id,
+  title,
+  "slug": slug.current,
+  excerpt,
+  tags,
+  author,
+  publishedAt,
+  featured,
+  coverImage,
+  content
+}`;
+
 export const PROJECTS_QUERY = `*[_type == "project"] | order(_createdAt desc) {
   _id,
   title,
@@ -52,6 +93,24 @@ export async function getProjects(): Promise<Project[]> {
     } catch (error) {
         console.warn("Could not fetch projects from Sanity:", error);
         return [];
+    }
+}
+
+export async function getPosts(): Promise<Post[]> {
+    try {
+        return await client.fetch(POSTS_QUERY, {}, { next: { revalidate: 60 } });
+    } catch (error) {
+        console.warn("Could not fetch posts from Sanity:", error);
+        return [];
+    }
+}
+
+export async function getPost(slug: string): Promise<PostDetail | null> {
+    try {
+        return await client.fetch(POST_QUERY, { slug }, { next: { revalidate: 60 } });
+    } catch (error) {
+        console.warn(`Could not fetch post "${slug}" from Sanity:`, error);
+        return null;
     }
 }
 

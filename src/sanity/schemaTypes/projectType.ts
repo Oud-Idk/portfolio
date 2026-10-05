@@ -48,8 +48,7 @@ export const projectType = defineType({
         defineField({
             name: 'content',
             title: 'Case Study / Write-up (Markdown)',
-            type: 'text',
-            rows: 20,
+            type: 'markdown',
         }),
     ],
 })
