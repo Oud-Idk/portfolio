@@ -49,8 +49,31 @@ Notes:
   Swap the left side of the mapping to publish on the LAN.
 - **`NEXT_PUBLIC_*` must be set at build time.** Next.js inlines them into the client
   bundle, so changing them needs `docker compose build`, not just a restart.
-  `SANITY_API_TOKEN` is server-only and is injected at runtime from `.env.local`.
+  `SANITY_API_TOKEN` is server-only and is injected at runtime from `.env`.
 - Add `--env-file .env.local` to any `docker compose` command to use that file's values.
+
+## Analytics (Umami)
+
+The compose stack includes [Umami](https://umami.is) (cookieless, self-hosted)
+plus its PostgreSQL database. The dashboard is **not** exposed through the
+tunnel — it's published loopback-only on `127.0.0.1:${UMAMI_HOST_PORT:-3001}`
+(SSH-tunnel to it on the deploy server).
+
+First-time setup:
+
+1. Set `UMAMI_APP_SECRET` (any random string) and `UMAMI_DB_PASSWORD` in `.env`.
+2. `docker compose up -d umami` and open `http://127.0.0.1:3001`.
+3. Log in with `admin` / `umami` and **change the password immediately**.
+4. Add a website, copy its website ID into `NEXT_PUBLIC_UMAMI_WEBSITE_ID`.
+5. Rebuild the app: `docker compose build web && docker compose up -d`
+   (the ID is a `NEXT_PUBLIC_*` var, so it's inlined at build time — a restart
+   alone won't pick it up). Leave the ID empty to ship without any tracking.
+
+The tracker script and its collection endpoint are proxied through the site's
+own origin via Next.js rewrites (`/umami.js` and `/api/send`), so visitors
+never talk to a separate analytics host. Visitor country works out of the box
+via Cloudflare headers; for region/city data, enable **Rules → Settings →
+Managed Transforms → Add visitor location headers** in the Cloudflare dashboard.
 
 ## Learn More
 

@@ -71,6 +71,7 @@ export default async function Home() {
                         <a
                             href="mailto:dayton@oud-idk.dev"
                             className={buttonVariants()}
+                            data-umami-event="get-in-touch"
                         >
                             Get in touch
                         </a>

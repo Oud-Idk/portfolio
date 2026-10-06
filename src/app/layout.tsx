@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
@@ -52,6 +53,8 @@ interface RootLayoutProps {
     children: ReactNode;
 }
 
+const umamiWebsiteId = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;
+
 export default function RootLayout({ children }: RootLayoutProps) {
     return (
         <html
@@ -65,6 +68,14 @@ export default function RootLayout({ children }: RootLayoutProps) {
         >
             {children}
         </ThemeProvider>
+        {umamiWebsiteId && (
+            <Script
+                src="/umami.js"
+                data-website-id={umamiWebsiteId}
+                data-do-not-track="true"
+                strategy="afterInteractive"
+            />
+        )}
         </body>
         </html>
     );
