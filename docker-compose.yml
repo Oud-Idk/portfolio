@@ -22,7 +22,7 @@ services:
       - NEXT_PUBLIC_UMAMI_WEBSITE_ID=${NEXT_PUBLIC_UMAMI_WEBSITE_ID:-}
     restart: unless-stopped
     ports:
-      - "${UMAMI_HOST_PORT:-3001}:3000"
+      - "127.0.0.1:${WEB_HOST_PORT:-8080}:3000"
 
   cloudflared:
     image: cloudflare/cloudflared:latest
@@ -47,7 +47,7 @@ services:
     ports:
       # Loopback-only, like `web`. Not exposed through the tunnel — reach the
       # admin dashboard from the host (or via SSH tunnel on the deploy server).
-      - "127.0.0.1:${UMAMI_HOST_PORT:-3001}:3000"
+      - "${UMAMI_HOST_PORT:-3001}:3000"
 
   umami-db:
     image: postgres:16-alpine
