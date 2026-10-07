@@ -58,14 +58,20 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                     &lt;- All posts
                 </Link>
 
-                <header className="flex flex-col gap-4">
+                <header className="flex flex-col">
                     <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
                         {post.title}
                     </h1>
 
                     {post.excerpt && (
-                        <p className="text-lg leading-relaxed text-muted-foreground">
+                        <p className="text-lg leading-relaxed text-muted-foreground mt-0.5">
                             {post.excerpt}
+                        </p>
+                    )}
+
+                    {post.featured && (
+                        <p className="text-sm font-semibold w-fit text-success mt-0.5">
+                            Featured
                         </p>
                     )}
 
@@ -79,7 +85,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                         </div>
                     )}
 
-                    <div className="flex flex-wrap items-center gap-3 pt-2 text-xs text-muted-foreground">
+                    <div className="flex flex-wrap items-center gap-3 pt-2 text-xs text-muted-foreground mt-1">
                         {post.publishedAt && (
                             <time dateTime={post.publishedAt}>
                                 {new Date(post.publishedAt).toLocaleDateString("en-US", {

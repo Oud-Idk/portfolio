@@ -38,6 +38,11 @@ export function BlogCard({ post, index }: { post: Post; index: number }) {
                         post.title
                     )}
                 </CardTitle>
+                {post.featured && (
+                    <p className="text-sm font-semibold w-fit text-success mb-0.5 -mt-1">
+                        Featured
+                    </p>
+                )}
                 <CardDescription>
                     {post.excerpt || "No excerpt provided."}
                 </CardDescription>

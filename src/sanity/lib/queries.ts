@@ -96,6 +96,10 @@ export async function getProjects(): Promise<Project[]> {
     }
 }
 
+export function withFeaturedFirst(posts: Post[]): Post[] {
+    return [...posts].sort((a, b) => Number(b.featured ?? false) - Number(a.featured ?? false));
+}
+
 export async function getPosts(): Promise<Post[]> {
     try {
         return await client.fetch(POSTS_QUERY, {}, { next: { revalidate: 60 } });

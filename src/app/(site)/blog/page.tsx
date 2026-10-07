@@ -1,10 +1,13 @@
 import Link from "next/link";
-import { getPosts } from "@/sanity/lib/queries";
+import { getPosts, withFeaturedFirst } from "@/sanity/lib/queries";
 
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Card } from "@/components/ui/card";
 import { BlogCard } from "@/components/BlogCard";
+import { ArrowUpRight, Rss } from "lucide-react";
+import { SiYoutube } from "@icons-pack/react-simple-icons";
+import { MarkdownRenderer } from "@/components/ui/markdown/MarkdownRenderer";
 
 export const metadata = {
     title: "Blog",
@@ -12,7 +15,7 @@ export const metadata = {
 };
 
 export default async function BlogPage() {
-    const posts = await getPosts();
+    const posts = withFeaturedFirst(await getPosts());
 
     return (
         <div className="min-h-screen text-foreground antialiased">
@@ -29,6 +32,17 @@ export default async function BlogPage() {
                     <p className="text-lg leading-relaxed text-muted-foreground">
                         Writing on software, web development, and things I learn.
                     </p>
+                    <div className="flex flex-row items-center gap-4">
+                        <a
+                            href="https://oud-idk.dev/atom.xml"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={buttonVariants({ variant: "outline" })}
+                        >
+                            <Rss /> <ArrowUpRight/>
+                        </a>
+                        {(await MarkdownRenderer({ content: "Or go to `https://oud-idk.dev/atom.xml`", className: "-my-4" }))}
+                    </div>
                 </header>
 
                 <Separator />
