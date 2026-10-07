@@ -1,14 +1,16 @@
 import Link from "next/link";
-import { getProjects, getPosts } from "@/sanity/lib/queries";
+import { getProjects, getPosts, withFeaturedFirst } from "@/sanity/lib/queries";
 
 // shadcn components
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Card } from "@/components/ui/card";
 import { ProjectCard } from "@/components/ProjectCard";
+import { Badge } from "@/components/ui/badge";
 import { MarkdownRenderer } from "@/components/ui/markdown/MarkdownRenderer";
 import { TypingQuote } from "@/components/TypingQuote";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Rss } from "lucide-react";
+import { SiBluesky, SiGithub, SiInstagram, SiX, SiYoutube } from "@icons-pack/react-simple-icons";
 
 const mainContent = `
 ## Full-Stack Developer
@@ -46,7 +48,7 @@ $$
 
 export default async function Home() {
     const projects = await getProjects();
-    const recentPosts = (await getPosts()).slice(0, 5);
+    const recentPosts = withFeaturedFirst(await getPosts()).slice(0, 10);
 
     return (
         <div className="min-h-screen text-foreground antialiased">
@@ -67,7 +69,7 @@ export default async function Home() {
 
                     <TypingQuote />
 
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200 fill-mode-backwards motion-reduce:animate-none flex items-center gap-4">
+                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-350 fill-mode-backwards motion-reduce:animate-none flex items-center gap-4">
                         <a
                             href="mailto:dayton@oud-idk.dev"
                             className={buttonVariants()}
@@ -76,15 +78,60 @@ export default async function Home() {
                             Get in touch
                         </a>
 
+                        <Link
+                            href="/about"
+                            className={buttonVariants({ variant: "ghost" })}
+                        >
+                            About me
+                        </Link>
+
+                        {(await MarkdownRenderer({ content: "Or email `dayton@oud-idk.dev`", className: "-my-4" }))}
+                    </div>
+                    <div className="animate-in fade-in slide-in-from-bottom-4 fill-mode-backwards duration-500 delay-500 flex items-center gap-1 motion-reduce:animate-none">
                         <a
                             href="https://github.com/Oud-Idk"
                             target="_blank"
                             rel="noopener noreferrer"
                             className={buttonVariants({ variant: "outline" })}
                         >
-                            GitHub <ArrowUpRight/>
+                            <SiGithub/> <ArrowUpRight/>
                         </a>
-                        {(await MarkdownRenderer({ content: "Or email `dayton@oud-idk.dev`", className: "-my-4" }))}
+
+                        <a
+                            href="https://instagram.com/oud_idk"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={buttonVariants({ variant: "outline" })}
+                        >
+                            <SiInstagram /> <ArrowUpRight/>
+                        </a>
+
+                        <a
+                            href="https://www.youtube.com/@oud-idk"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={buttonVariants({ variant: "outline" })}
+                        >
+                            <SiYoutube /> <ArrowUpRight/>
+                        </a>
+
+                        <a
+                            href="https://x.com/oud_idk"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={buttonVariants({ variant: "outline" })}
+                        >
+                            <SiX /> <ArrowUpRight/>
+                        </a>
+
+                        <a
+                            href="https://bsky.app/profile/ouded-idk.bsky.social"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={buttonVariants({ variant: "outline" })}
+                        >
+                            <SiBluesky /> <ArrowUpRight/>
+                        </a>
                     </div>
                 </section>
 
@@ -149,12 +196,19 @@ export default async function Home() {
                         <ul className="flex flex-col divide-y divide-border">
                             {recentPosts.map((post) => (
                                 <li key={post._id} className="flex items-baseline justify-between gap-4 py-3">
-                                    <Link
-                                        href={post.slug ? `/blog/${post.slug}` : "/blog"}
-                                        className="text-link hover:text-link-hover underline underline-offset-4 decoration-link/40 hover:decoration-link-hover font-medium transition-colors wrap-break-word break-all focus-ring rounded-xs"
-                                    >
-                                        {post.title}
-                                    </Link>
+                                    <div className="flex min-w-0 flex-wrap items-center gap-2">
+                                        <Link
+                                            href={post.slug ? `/blog/${post.slug}` : "/blog"}
+                                            className="text-link hover:text-link-hover underline underline-offset-4 decoration-link/40 hover:decoration-link-hover font-medium transition-colors wrap-break-word break-all focus-ring rounded-xs"
+                                        >
+                                            {post.title}
+                                        </Link>
+                                        {post.featured && (
+                                            <p className="text-sm font-semibold w-fit text-success ml-2">
+                                                Featured
+                                            </p>
+                                        )}
+                                    </div>
                                     {post.publishedAt && (
                                         <time
                                             dateTime={post.publishedAt}
