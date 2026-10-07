@@ -1,7 +1,7 @@
 {
   "name": "portfolio",
   "version": "0.1.0",
-  "packageManager": "pnpm@11.28.4",
+  "packageManager": "pnpm@12.10.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
+    "@icons-pack/react-simple-icons": "^13.15.1",
     "@sanity/image-url": "^2.1.1",
     "@shikijs/rehype": "^4.5.0",
     "class-variance-authority": "^0.7.1",
@@ -37,6 +38,7 @@
     "remark-math": "^6.0.0",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",
+    "resend": "^6.32.1",
     "sanity": "^6.17.0",
     "sanity-plugin-markdown": "^9.0.14",
     "shadcn": "^4.21.1",
