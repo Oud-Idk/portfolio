@@ -37,7 +37,7 @@ const otherContent = `
 
 > *"Simplicity is prerequisite for reliability."* - Edsger W. Dijkstra
 
-The best software doesn’t show off. The best one simply works. Whether that means a dashboard, a company profile, or a portfolio, my goal is to deliver intuiitive tools that respect your users' time.
+The best software doesn’t show off. The best one simply works. Whether that means a dashboard, a company profile, or a portfolio, my goal is to deliver intuitive tools that respect your users' time.
 
 This website is a living example of my philosophy. I can write something like this, and it will still load instantly.
 
