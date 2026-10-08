@@ -3,7 +3,7 @@ import { Resend } from "resend";
 
 import { verifySanityWebhook } from "@/lib/sanity-webhook";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const getResend = () => new Resend(process.env.RESEND_API_KEY);
 
 function escapeHtml(s: string): string {
     return s
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     const postUrl = `${siteUrl}/blog/${body.slug}`;
 
     try {
-        const { error } = await resend.broadcasts.create({
+        const { error } = await getResend().broadcasts.create({
             name: `New post: ${body.title}`,
             subject: body.title,
             segmentId,

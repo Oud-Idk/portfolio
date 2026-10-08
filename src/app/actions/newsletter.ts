@@ -2,7 +2,7 @@
 
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const getResend = () => new Resend(process.env.RESEND_API_KEY);
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -19,7 +19,7 @@ export async function subscribeToNewsletter(formData: FormData) {
     }
 
     try {
-        const { data, error } = await resend.contacts.create({
+        const { data, error } = await getResend().contacts.create({
             email,
             segments: [{ id: segmentId }],
         });
@@ -38,7 +38,7 @@ export async function subscribeToNewsletter(formData: FormData) {
                 ? `${siteUrl}/api/unsubscribe?id=${data.id}`
                 : `${siteUrl}/blog`;
 
-            await resend.emails.send({
+            await getResend().emails.send({
                 from: "Blog <blog@oud-idk.dev>",
                 to: [email],
                 subject: "Welcome to the mailing list!",

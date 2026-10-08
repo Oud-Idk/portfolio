@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const getResend = () => new Resend(process.env.RESEND_API_KEY);
 
 function page(title: string, message: string) {
     return new Response(
@@ -30,8 +30,8 @@ export async function GET(request: NextRequest) {
 
     try {
         const { error } = id
-            ? await resend.contacts.update({ id, unsubscribed: true })
-            : await resend.contacts.update({ email: email as string, unsubscribed: true });
+            ? await getResend().contacts.update({ id, unsubscribed: true })
+            : await getResend().contacts.update({ email: email as string, unsubscribed: true });
 
         if (error) {
             return page("Unsubscribe failed", "Something went wrong. Please try again later.");
