@@ -107,6 +107,7 @@ export function ContactForm({className}: {className?: string}) {
                         type="submit"
                         disabled={status === "loading"}
                         className="w-full sm:w-auto self-start"
+                        data-umami-event="send-message"
                     >
                         {status === "loading" ? "Sending..." : "Send Message"}
                     </Button>

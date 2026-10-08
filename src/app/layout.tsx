@@ -70,9 +70,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
         </ThemeProvider>
         {umamiWebsiteId && (
             <Script
-                src="/umami.js"
+                src="/a/x.js"
                 data-website-id={umamiWebsiteId}
                 data-do-not-track="true"
+                data-performance="true"
                 strategy="afterInteractive"
             />
         )}

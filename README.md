@@ -70,7 +70,7 @@ First-time setup:
    alone won't pick it up). Leave the ID empty to ship without any tracking.
 
 The tracker script and its collection endpoint are proxied through the site's
-own origin via Next.js rewrites (`/umami.js` and `/api/send`), so visitors
+own origin via Next.js rewrites (`/a/x.js` and `/a/api/send`), so visitors
 never talk to a separate analytics host. Visitor country works out of the box
 via Cloudflare headers; for region/city data, enable **Rules → Settings →
 Managed Transforms → Add visitor location headers** in the Cloudflare dashboard.

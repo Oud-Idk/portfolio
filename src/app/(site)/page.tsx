@@ -1,15 +1,13 @@
 import Link from "next/link";
 import { getProjects, getPosts, withFeaturedFirst } from "@/sanity/lib/queries";
 
-// shadcn components
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Card } from "@/components/ui/card";
 import { ProjectCard } from "@/components/ProjectCard";
-import { Badge } from "@/components/ui/badge";
 import { MarkdownRenderer } from "@/components/ui/markdown/MarkdownRenderer";
 import { TypingQuote } from "@/components/TypingQuote";
-import { ArrowUpRight, Rss } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { SiBluesky, SiGithub, SiInstagram, SiX, SiYoutube } from "@icons-pack/react-simple-icons";
 
 const mainContent = `
@@ -93,6 +91,7 @@ export default async function Home() {
                             target="_blank"
                             rel="noopener noreferrer"
                             className={buttonVariants({ variant: "outline" })}
+                            data-umami-event="social-github"
                         >
                             <SiGithub/> <ArrowUpRight/>
                         </a>
@@ -102,6 +101,7 @@ export default async function Home() {
                             target="_blank"
                             rel="noopener noreferrer"
                             className={buttonVariants({ variant: "outline" })}
+                            data-umami-event="social-instagram"
                         >
                             <SiInstagram /> <ArrowUpRight/>
                         </a>
@@ -111,6 +111,7 @@ export default async function Home() {
                             target="_blank"
                             rel="noopener noreferrer"
                             className={buttonVariants({ variant: "outline" })}
+                            data-umami-event="social-youtube"
                         >
                             <SiYoutube /> <ArrowUpRight/>
                         </a>
@@ -120,6 +121,7 @@ export default async function Home() {
                             target="_blank"
                             rel="noopener noreferrer"
                             className={buttonVariants({ variant: "outline" })}
+                            data-umami-event="social-x"
                         >
                             <SiX /> <ArrowUpRight/>
                         </a>
@@ -129,6 +131,7 @@ export default async function Home() {
                             target="_blank"
                             rel="noopener noreferrer"
                             className={buttonVariants({ variant: "outline" })}
+                            data-umami-event="social-bluesky"
                         >
                             <SiBluesky /> <ArrowUpRight/>
                         </a>
