@@ -44,31 +44,31 @@ export async function subscribeToNewsletter(formData: FormData) {
                 subject: "Welcome to the mailing list!",
                 text: `Thanks for subscribing to oud-idk.dev!\n\nYou'll get an email whenever I publish a new post. No random spam, just new writing, and you can unsubscribe at any time:\n${unsubscribeUrl}\n\nSee you soon,\nOud`,
                 html: `
-<div style="font-family: system-ui, -apple-system, sans-serif; max-width: 640px; margin: 0 auto; padding: 32px 24px; background: oklch(0.176 0 0); color: oklch(0.96 0 0); border-radius: 12px; border: 1px solid oklch(0.28 0 0);">
+<div style="font-family: system-ui, -apple-system, sans-serif; max-width: 640px; margin: 0 auto; padding: 32px 24px; background: #111111; color: #f2f2f2; border-radius: 12px; border: 1px solid #292929;">
   <img src="${siteUrl}/chonky-boi.png" alt="Chonky boi" width="96" height="96" style="border-radius: 12px; margin: 0 0 16px; display: block;" />
   <h1 style="font-size: 24px; font-weight: 700; margin: 0 0 16px; letter-spacing: -0.5px;">You're on the list!</h1>
   
-  <p style="color: oklch(0.8 0 0); font-size: 15px; line-height: 1.6; margin: 0 0 16px;">
-    Thanks for subscribing to <a href="https://oud-idk.dev" style="color: oklch(0.96 0 0); font-weight: 600; text-decoration: underline;">oud-idk.dev</a>.
+  <p style="color: #bebebe; font-size: 15px; line-height: 1.6; margin: 0 0 16px;">
+    Thanks for subscribing to <a href="https://oud-idk.dev" style="color: #f2f2f2; font-weight: 600; text-decoration: underline;">oud-idk.dev</a>.
     You'll get an email whenever I publish a new post. No random spam, just new writing.
   </p>
   
-  <p style="color: oklch(0.8 0 0); font-size: 15px; line-height: 1.6; margin: 0 0 28px;">
-    See you soon,<br><strong style="color: oklch(0.96 0 0);">Oud</strong>
+  <p style="color: #bebebe; font-size: 15px; line-height: 1.6; margin: 0 0 28px;">
+    See you soon,<br><strong style="color: #f2f2f2;">Oud</strong>
   </p>
 
-  <hr style="border: none; border-top: 1px solid oklch(0.26 0 0);">
+  <hr style="border: none; border-top: 1px solid #242424;">
 
   <div style="text-align: center; padding: 12px 0 4px;">
-    <p style="font-size: 13px; color: oklch(0.8 0 0); margin: 0 0 14px;">
+    <p style="font-size: 13px; color: #bebebe; margin: 0 0 14px;">
       Having second thoughts?
     </p>
 
     <a href="${unsubscribeUrl}" 
        style="display: block; 
-              background: oklch(0.193 0 0); 
-              color: oklch(0.7 0.24 27); 
-              border: 1px solid oklch(0.28 0 0); 
+              background: #141414; 
+              color: #ff4742; 
+              border: 1px solid #292929; 
               border-radius: 8px; 
               padding: 14px 24px; 
               font-size: 14px; 

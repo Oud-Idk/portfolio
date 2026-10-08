@@ -62,24 +62,24 @@ export async function POST(request: NextRequest) {
             send: true,
             text: `${body.title}\n\n${body.excerpt ?? ""}\n\nRead it here: ${postUrl}`,
             html: `
-<div style="font-family: system-ui, -apple-system, sans-serif; max-width: 640px; margin: 0 auto; padding: 32px 24px; background: oklch(0.176 0 0); color: oklch(0.96 0 0); border-radius: 12px; border: 1px solid oklch(0.28 0 0);">
-  <p style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: oklch(0.8 0 0); margin: 0 0 8px;">New post</p>
+<div style="font-family: system-ui, -apple-system, sans-serif; max-width: 640px; margin: 0 auto; padding: 32px 24px; background: #111111; color: #f2f2f2; border-radius: 12px; border: 1px solid #292929;">
+  <p style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: #bebebe; margin: 0 0 8px;">New post</p>
   <h1 style="font-size: 24px; font-weight: 700; margin: 0 0 16px; letter-spacing: -0.5px;">${escapeHtml(body.title)}</h1>
-  ${body.excerpt ? `<p style="color: oklch(0.8 0 0); font-size: 15px; line-height: 1.6; margin: 0 0 28px;">${escapeHtml(body.excerpt)}</p>` : ""}
-  <a href="${postUrl}" style="display: block; background: oklch(0.193 0 0); color: oklch(0.96 0 0); border: 1px solid oklch(0.28 0 0); border-radius: 8px; padding: 14px 24px; font-size: 14px; font-weight: 700; text-decoration: none; text-align: center;">Read it →</a>
+  ${body.excerpt ? `<p style="color: #bebebe; font-size: 15px; line-height: 1.6; margin: 0 0 28px;">${escapeHtml(body.excerpt)}</p>` : ""}
+  <a href="${postUrl}" style="display: block; background: #141414; color: #f2f2f2; border: 1px solid #292929; border-radius: 8px; padding: 14px 24px; font-size: 14px; font-weight: 700; text-decoration: none; text-align: center;">Read it →</a>
 
-  <hr style="border: none; border-top: 1px solid oklch(0.26 0 0); margin: 28px 0 0;">
+  <hr style="border: none; border-top: 1px solid #242424; margin: 28px 0 0;">
 
   <div style="text-align: center; padding: 12px 0 4px;">
-    <p style="font-size: 13px; color: oklch(0.8 0 0); margin: 0 0 14px;">
+    <p style="font-size: 13px; color: #bebebe; margin: 0 0 14px;">
       Having second thoughts?
     </p>
 
     <a href="${siteUrl}/unsubscribe"
        style="display: block;
-              background: oklch(0.193 0 0);
-              color: oklch(0.7 0.24 27);
-              border: 1px solid oklch(0.28 0 0);
+              background: #141414;
+              color: #ff4742;
+              border: 1px solid #292929;
               border-radius: 8px;
               padding: 14px 24px;
               font-size: 14px;
