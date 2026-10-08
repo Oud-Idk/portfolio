@@ -3,10 +3,8 @@ import { getPosts, withFeaturedFirst } from "@/sanity/lib/queries";
 
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Card } from "@/components/ui/card";
-import { BlogCard } from "@/components/BlogCard";
+import { BlogExplorer } from "@/components/BlogExplorer";
 import { ArrowUpRight, Rss } from "lucide-react";
-import { SiYoutube } from "@icons-pack/react-simple-icons";
 import { MarkdownRenderer } from "@/components/ui/markdown/MarkdownRenderer";
 
 export const metadata = {
@@ -47,19 +45,7 @@ export default async function BlogPage() {
 
                 <Separator />
 
-                {posts.length === 0 ? (
-                    <Card className="border-dashed p-10 text-center bg-transparent">
-                        <p className="text-sm text-muted-foreground">
-                            No posts yet. Check back soon.
-                        </p>
-                    </Card>
-                ) : (
-                    <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
-                        {posts.map((post, index) => (
-                            <BlogCard key={post._id} post={post} index={index} />
-                        ))}
-                    </div>
-                )}
+                <BlogExplorer posts={posts} />
             </main>
         </div>
     );

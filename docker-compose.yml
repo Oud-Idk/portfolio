@@ -20,9 +20,26 @@ services:
       - NEXT_PUBLIC_SANITY_API_VERSION=${NEXT_PUBLIC_SANITY_API_VERSION:-}
       - SANITY_API_TOKEN=${SANITY_API_TOKEN:-}
       - NEXT_PUBLIC_UMAMI_WEBSITE_ID=${NEXT_PUBLIC_UMAMI_WEBSITE_ID:-}
+      - MEILISEARCH_HOST=http://meilisearch:7700
+      - MEILI_MASTER_KEY=${MEILI_MASTER_KEY:-}
+      - SANITY_WEBHOOK_SECRET=${SANITY_WEBHOOK_SECRET:-}
+    depends_on:
+      meilisearch:
+        condition: service_started
     restart: unless-stopped
     ports:
       - "127.0.0.1:${WEB_HOST_PORT:-8080}:3000"
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.15
+    environment:
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-}
+      MEILI_ENV: production
+    volumes:
+      - meili-data:/meili_data
+    ports:
+      - "127.0.0.1:${MEILI_HOST_PORT:-7700}:7700"
+    restart: unless-stopped
 
   cloudflared:
     image: cloudflare/cloudflared:latest
@@ -69,3 +86,4 @@ services:
 
 volumes:
   umami-db-data:
+  meili-data:

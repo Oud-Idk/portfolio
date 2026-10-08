@@ -75,6 +75,22 @@ never talk to a separate analytics host. Visitor country works out of the box
 via Cloudflare headers; for region/city data, enable **Rules → Settings →
 Managed Transforms → Add visitor location headers** in the Cloudflare dashboard.
 
+## Blog Search (MeiliSearch)
+
+The blog index page has a search box backed by [MeiliSearch](https://www.meilisearch.com/).
+
+- **Server:** the `docker-compose.yml` stack includes a `meilisearch` service
+  (data in the `meili-data` volume, published loopback-only on port 7700).
+- **Indexing:** run a full sync with `pnpm search:sync` (uses Sanity + MeiliSearch
+  vars from `.env.local`/`.env`).
+- **Keeping in sync:** in Sanity → API → Webhooks, add a webhook for the `post`
+  type (create/update/delete) pointing at
+  `https://<site>/api/webhooks/sanity?secret=$SANITY_WEBHOOK_SECRET`.
+- **Config:** set `MEILI_MASTER_KEY`, `MEILISEARCH_API_KEY` (same value) and
+  `SANITY_WEBHOOK_SECRET` in `.env`; see `.env.docker.example`.
+- **Frontend:** the browser queries `/api/search`, which proxies to MeiliSearch —
+  the master key never leaves the server.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
