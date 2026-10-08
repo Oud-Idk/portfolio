@@ -2,6 +2,8 @@ import { getPosts } from "@/sanity/lib/queries";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://oud-idk.dev";
 
+export const revalidate = 60;
+
 function escapeXml(value: string): string {
     return value
         .replace(/&/g, "&amp;")

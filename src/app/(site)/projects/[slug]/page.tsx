@@ -8,13 +8,20 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { MarkdownWithToc } from "@/components/ui/markdown/MarkdownWithToC";
 import { ReadingProgress } from "@/components/ReadingProgress";
-import { getProject, imageUrl } from "@/sanity/lib/queries";
+import { getProject, getProjects, imageUrl } from "@/sanity/lib/queries";
 import { readingTime } from "@/lib/reading-time";
 import { cn } from "cn";
 import { ArrowUpRight } from "lucide-react";
 
 interface ProjectPageProps {
     params: Promise<{ slug: string }>;
+}
+
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+    const projects = await getProjects();
+    return projects.filter((project) => project.slug).map((project) => ({ slug: project.slug as string }));
 }
 
 export async function generateMetadata({ params }: ProjectPageProps): Promise<Metadata> {

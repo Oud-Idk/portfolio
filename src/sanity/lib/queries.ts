@@ -89,7 +89,7 @@ export function imageUrl(source: SanityImageSource, width = 1400): string {
 
 export async function getProjects(): Promise<Project[]> {
     try {
-        return await client.fetch(PROJECTS_QUERY, {}, { next: { revalidate: 60 } });
+        return await client.fetch(PROJECTS_QUERY, {}, { next: { revalidate: 60, tags: ["projects"] } });
     } catch (error) {
         console.warn("Could not fetch projects from Sanity:", error);
         return [];
@@ -102,7 +102,7 @@ export function withFeaturedFirst(posts: Post[]): Post[] {
 
 export async function getPosts(): Promise<Post[]> {
     try {
-        return await client.fetch(POSTS_QUERY, {}, { next: { revalidate: 60 } });
+        return await client.fetch(POSTS_QUERY, {}, { next: { revalidate: 60, tags: ["posts"] } });
     } catch (error) {
         console.warn("Could not fetch posts from Sanity:", error);
         return [];
@@ -111,7 +111,7 @@ export async function getPosts(): Promise<Post[]> {
 
 export async function getPost(slug: string): Promise<PostDetail | null> {
     try {
-        return await client.fetch(POST_QUERY, { slug }, { next: { revalidate: 60 } });
+        return await client.fetch(POST_QUERY, { slug }, { next: { revalidate: 60, tags: ["posts", `post:${slug}`] } });
     } catch (error) {
         console.warn(`Could not fetch post "${slug}" from Sanity:`, error);
         return null;
@@ -120,7 +120,7 @@ export async function getPost(slug: string): Promise<PostDetail | null> {
 
 export async function getProject(slug: string): Promise<ProjectDetail | null> {
     try {
-        return await client.fetch(PROJECT_QUERY, { slug }, { next: { revalidate: 60 } });
+        return await client.fetch(PROJECT_QUERY, { slug }, { next: { revalidate: 60, tags: ["projects", `project:${slug}`] } });
     } catch (error) {
         console.warn(`Could not fetch project "${slug}" from Sanity:`, error);
         return null;

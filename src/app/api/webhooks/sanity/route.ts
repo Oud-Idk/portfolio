@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 
 import { client } from "@/sanity/lib/client";
 import { meili, MEILI_INDEX } from "@/lib/meilisearch";
@@ -29,9 +30,10 @@ function stripMarkdown(md?: string): string {
 
 /**
  * Sanity webhook receiver: keeps the MeiliSearch index in sync with post
- * create/update/delete. Configure the webhook URL as
+ * create/update/delete, and revalidates the Next.js cache for post/project
+ * changes. Configure the webhook URL as
  *   https://<site>/api/webhooks/sanity?secret=$SANITY_WEBHOOK_SECRET
- * with triggers on create, update and delete of type "post".
+ * with triggers on create, update and delete of types "post" and "project".
  */
 export async function POST(request: NextRequest) {
     const secret = request.nextUrl.searchParams.get("secret");
@@ -39,17 +41,31 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    let body: { _id?: string; id?: string; _type?: string };
+    let body: { _id?: string; id?: string; _type?: string; slug?: string | { current?: string } };
     try {
         body = await request.json();
     } catch {
         return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
     }
 
+    const slug = typeof body.slug === "string" ? body.slug : body.slug?.current;
     const id = body._id ?? body.id;
-    if (!id || (body._type && body._type !== "post")) {
+    if (!id) {
         return NextResponse.json({ ok: true, skipped: true });
     }
+
+    if (body._type === "project") {
+        revalidateTag("projects", "max");
+        if (slug) revalidateTag(`project:${slug}`, "max");
+        return NextResponse.json({ ok: true, revalidated: id });
+    }
+
+    if (body._type && body._type !== "post") {
+        return NextResponse.json({ ok: true, skipped: true });
+    }
+
+    revalidateTag("posts", "max");
+    if (slug) revalidateTag(`post:${slug}`, "max");
 
     try {
         const post = await client.fetch(POST_FOR_INDEX, { id }, { cache: "no-store" });
@@ -59,6 +75,8 @@ export async function POST(request: NextRequest) {
             await index.deleteDocument(id);
             return NextResponse.json({ ok: true, deleted: id });
         }
+
+        if (post.slug) revalidateTag(`post:${post.slug}`, "max");
 
         await index.addDocuments([
             {

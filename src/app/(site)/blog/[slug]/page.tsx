@@ -8,12 +8,19 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { MarkdownWithToc } from "@/components/ui/markdown/MarkdownWithToC";
 import { ReadingProgress } from "@/components/ReadingProgress";
-import { getPost, imageUrl } from "@/sanity/lib/queries";
+import { getPost, getPosts, imageUrl } from "@/sanity/lib/queries";
 import { readingTime } from "@/lib/reading-time";
 import { cn } from "cn";
 
 interface BlogPostPageProps {
     params: Promise<{ slug: string }>;
+}
+
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+    const posts = await getPosts();
+    return posts.filter((post) => post.slug).map((post) => ({ slug: post.slug as string }));
 }
 
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
