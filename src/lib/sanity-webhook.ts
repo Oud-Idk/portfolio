@@ -30,10 +30,16 @@ export function verifySanityWebhook(
             return false;
         }
 
-        const expected = createHmac("sha256", secret).update(`${t}.${rawBody}`).digest("hex");
-        const a = Buffer.from(expected);
-        const b = Buffer.from(v1);
-        return a.length === b.length && timingSafeEqual(a, b);
+        const expected = createHmac("sha256", secret).update(`${t}.${rawBody}`).digest();
+        // Accept the digest as hex, base64, or base64url.
+        const candidates = [
+            Buffer.from(v1, "hex"),
+            Buffer.from(v1, "base64"),
+            Buffer.from(v1.replace(/-/g, "+").replace(/_/g, "/"), "base64"),
+        ];
+        return candidates.some(
+            (c) => c.length === expected.length && timingSafeEqual(c, expected),
+        );
     }
 
     return querySecret === secret;
