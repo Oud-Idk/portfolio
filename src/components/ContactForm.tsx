@@ -35,7 +35,7 @@ export function ContactForm({className}: {className?: string}) {
     if (status === "success") {
         return (
             <Card className="p-8 text-center bg-card/60 backdrop-blur-sm">
-                <CardTitle className="text-xl">Message sent! 🎉</CardTitle>
+                <CardTitle className="text-xl">Message sent!</CardTitle>
                 <CardDescription className="mt-1">
                     Thanks for reaching out, I&apos;ll get back to you soon!
                 </CardDescription>

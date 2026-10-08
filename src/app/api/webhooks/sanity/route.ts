@@ -3,6 +3,7 @@ import { revalidateTag } from "next/cache";
 
 import { client } from "@/sanity/lib/client";
 import { meili, MEILI_INDEX } from "@/lib/meilisearch";
+import { verifySanityWebhook } from "@/lib/sanity-webhook";
 
 const POST_FOR_INDEX = `*[_type == "post" && _id == $id][0] {
   _id,
@@ -32,18 +33,24 @@ function stripMarkdown(md?: string): string {
  * Sanity webhook receiver: keeps the MeiliSearch index in sync with post
  * create/update/delete, and revalidates the Next.js cache for post/project
  * changes. Configure the webhook URL as
- *   https://<site>/api/webhooks/sanity?secret=$SANITY_WEBHOOK_SECRET
- * with triggers on create, update and delete of types "post" and "project".
+ *   https://<site>/api/webhooks/sanity
+ * with triggers on create, update and delete of types "post" and "project",
+ * and set the webhook secret in the dashboard's "Secret" field.
  */
 export async function POST(request: NextRequest) {
-    const secret = request.nextUrl.searchParams.get("secret");
-    if (!process.env.SANITY_WEBHOOK_SECRET || secret !== process.env.SANITY_WEBHOOK_SECRET) {
+    const rawBody = await request.text();
+    const valid = verifySanityWebhook(
+        request.headers.get("sanity-webhook-signature"),
+        request.nextUrl.searchParams.get("secret"),
+        rawBody,
+    );
+    if (!valid) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     let body: { _id?: string; id?: string; _type?: string; slug?: string | { current?: string } };
     try {
-        body = await request.json();
+        body = JSON.parse(rawBody);
     } catch {
         return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
     }
