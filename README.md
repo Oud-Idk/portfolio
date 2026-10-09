@@ -91,6 +91,24 @@ The blog index page has a search box backed by [MeiliSearch](https://www.meilise
 - **Frontend:** the browser queries `/api/search`, which proxies to MeiliSearch —
   the master key never leaves the server.
 
+## Newsletter (Resend)
+
+Contact signup lives in `src/app/actions/newsletter.ts`; new-post broadcasts are
+sent from the Sanity publish webhook (`src/app/api/webhooks/publish`).
+
+- **Config:** set `RESEND_API_KEY`, `RESEND_SEGMENT_ID` and
+  `UNSUBSCRIBE_TOKEN_SECRET` in `.env`; see `.env.docker.example`. Generate the
+  last one with `openssl rand -base64 32`.
+- **Unsubscribing:** `/api/unsubscribe` takes a signed, expiring `?token=`
+  rather than a contact id or email address, so nobody can unsubscribe a
+  subscriber by guessing or leaking an identifier. `GET` only renders the
+  confirmation step — `POST` is the only handler that mutates, which is also
+  what RFC 8058 one-click uses. Tokens fail closed: with no secret configured
+  every link reports itself invalid, so set it in any deployed environment.
+- **Self-serve:** `/unsubscribe` asks for an address and mails a one-hour
+  confirmation link to it. Broadcasts carry no per-recipient token, so the
+  emailed link is what proves the requester owns the mailbox.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

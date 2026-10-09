@@ -23,6 +23,10 @@ services:
       - MEILISEARCH_HOST=http://meilisearch:7700
       - MEILI_MASTER_KEY=${MEILI_MASTER_KEY:-}
       - SANITY_WEBHOOK_SECRET=${SANITY_WEBHOOK_SECRET:-}
+      # Signed unsubscribe links fail closed without this: every link reports
+      # itself invalid rather than acting on a guessable id. Set it, or nobody
+      # can unsubscribe at all.
+      - UNSUBSCRIBE_TOKEN_SECRET=${UNSUBSCRIBE_TOKEN_SECRET:-}
     depends_on:
       meilisearch:
         condition: service_started
