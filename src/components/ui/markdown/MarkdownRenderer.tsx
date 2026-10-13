@@ -167,7 +167,6 @@ export async function MarkdownRenderer({ content, className, headings }: Markdow
     return (
         <div
             className={`
-                ${className ?? ''} 
                 prose dark:prose-invert max-w-none w-full wrap-break-word
                 prose-headings:scroll-mt-24
                 prose-headings:text-foreground prose-headings:font-semibold prose-headings:tracking-tight prose-h1:mt-8
@@ -175,6 +174,7 @@ export async function MarkdownRenderer({ content, className, headings }: Markdow
                 prose-blockquote:border-l-brand prose-blockquote:py-0.5 prose-blockquote:px-4 prose-blockquote:rounded-r-xl prose-blockquote:not-italic
                 prose-pre:bg-surface
                 prose-img:rounded-xl prose-img:border prose-img:border-border
+                ${className ?? ''} 
             `}
         >
             {body}

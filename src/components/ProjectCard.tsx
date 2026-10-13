@@ -13,6 +13,7 @@ import {
 
 import type { Project } from "@/sanity/lib/queries";
 import { ArrowUpRight } from "lucide-react";
+import { MarkdownRenderer } from "@/components/ui/markdown/MarkdownRenderer";
 
 export function ProjectCard({ project, index }: { project: Project; index: number }) {
     return (
@@ -40,7 +41,7 @@ export function ProjectCard({ project, index }: { project: Project; index: numbe
                     )}
                 </CardTitle>
                 <CardDescription>
-                    {project.summary || "No description provided."}
+                    <MarkdownRenderer content={project.summary || "No description provided."} className="-my-4 text-sm" />
                 </CardDescription>
             </CardHeader>
 

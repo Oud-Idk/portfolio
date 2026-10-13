@@ -12,6 +12,7 @@ import { getProject, getProjects, imageUrl } from "@/sanity/lib/queries";
 import { readingTime } from "@/lib/reading-time";
 import { cn } from "cn";
 import { ArrowUpRight } from "lucide-react";
+import { MarkdownRenderer } from "@/components/ui/markdown/MarkdownRenderer";
 
 interface ProjectPageProps {
     params: Promise<{ slug: string }>;
@@ -70,9 +71,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                     </h1>
 
                     {project.summary && (
-                        <p className="text-lg leading-relaxed text-muted-foreground">
-                            {project.summary}
-                        </p>
+                        <MarkdownRenderer content={project.summary} className="-my-4 text-lg leading-relaxed text-muted-foreground" />
                     )}
 
                     {project.tags && project.tags.length > 0 && (
