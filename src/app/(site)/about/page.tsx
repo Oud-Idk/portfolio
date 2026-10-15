@@ -53,7 +53,7 @@ export default async function AboutPage() {
 
                 {(await MarkdownWithToc({ content: aboutContent }))}
 
-                <ContactForm className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-400 fill-mode-backwards" />
+                <ContactForm  />
 
                 <footer className="flex items-center justify-between border-t border-border pt-8 text-xs text-muted-foreground">
                     <p>© {new Date().getFullYear()} Oud • Built with Next.js & Sanity</p>

@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import bundleAnalyzer from '@next/bundle-analyzer'
 
 const umamiInternalUrl =
     process.env.UMAMI_INTERNAL_URL ?? "http://umami:3000";
@@ -31,4 +32,8 @@ const nextConfig: NextConfig = {
     },
 };
 
-export default nextConfig;
+const withAnalyzer = bundleAnalyzer({
+    enabled: process.env.ANALYZE === 'true',
+});
+
+export default withAnalyzer(nextConfig);

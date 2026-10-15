@@ -1,5 +1,3 @@
-import "katex/dist/katex.min.css";
-
 import React, { type ReactNode } from "react";
 import { MarkdownAsync, type Components } from "react-markdown";
 import type { PluggableList } from "unified";
@@ -103,6 +101,19 @@ const markdownComponents: Components & Record<string, React.ElementType> = {
             />
         );
     },
+    img(raw: React.ComponentProps<"img"> & { node?: unknown }) {
+        const { width, height, ...props } = withoutNode(raw);
+
+        return (
+            <img
+                width={width ?? 800}
+                height={height ?? 600}
+                loading="lazy"
+                decoding="async"
+                {...props}
+            />
+        );
+    },
     a(raw: React.ComponentProps<"a"> & { node?: unknown }) {
         const { className, ...props } = withoutNode(raw);
 
@@ -156,13 +167,13 @@ function getMarkdown(content: string, collectToc: boolean): Promise<{ body: Reac
         };
 
         hit = Promise.resolve(rehypeLoader()).then((rehype) =>
-            MarkdownAsync({
-                remarkPlugins,
-                rehypePlugins: rehype,
-                components: markdownComponents,
-                children: content,
-            }).then((body) => ({ body, headings: collected }))
-        );
+                MarkdownAsync({
+                    remarkPlugins,
+                    rehypePlugins: rehype,
+                    components: markdownComponents,
+                    children: content,
+                }).then((body) => ({ body, headings: collected }))
+            );
         hit.catch(() => markdownCache.delete(key));
         markdownCache.set(key, hit);
     }
@@ -174,7 +185,15 @@ export async function MarkdownRenderer({ content, className, headings }: Markdow
     const body = await getMarkdownBody(content ?? "", headings);
 
     return (
-        <div
+        <>
+            {hasMath(content ?? "") && (
+                <link
+                    rel="stylesheet"
+                    href="https://cdn.jsdelivr.net/npm/katex@0.17.0/dist/katex.min.css"
+                    crossOrigin="anonymous"
+                />
+            )}
+            <div
             className={`
                 prose dark:prose-invert max-w-none w-full wrap-break-word
                 prose-headings:scroll-mt-24
@@ -188,5 +207,6 @@ export async function MarkdownRenderer({ content, className, headings }: Markdow
         >
             {body}
         </div>
+        </>
     );
 }

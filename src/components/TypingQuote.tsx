@@ -37,7 +37,7 @@ export function TypingQuote() {
             </span>
             <span aria-hidden="true" className="absolute inset-0 motion-reduce:hidden">
                 &quot;{text}
-                <span className="animate-[blink_1s_step-end_infinite] text-foreground -mx-0.75">
+                <span className="text-foreground -mx-0.75">
                     |
                 </span>
                 &quot;
