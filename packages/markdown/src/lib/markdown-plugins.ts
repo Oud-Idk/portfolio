@@ -67,21 +67,27 @@ const rehypeMarkBlockCode = () => (tree: Root) => {
 
 export const remarkPlugins: PluggableList = [remarkGfm, remarkMath, remarkBreaks, remarkDirective, remarkSideBySide];
 
-export const rehypePlugins: PluggableList = [
-    rehypeRaw,
-    rehypeKatex,
-    rehypeSlug,
-    [rehypeAutolinkHeadings],
-    [rehypeExternalLinks, { target: "_blank", rel: ["noopener", "noreferrer"] }],
-    [
-        rehypeShiki,
-        {
-            themes: {
-                light: "light-plus",
-                dark: "dark-plus",
+export function hasMath(content: string | undefined | null): boolean {
+    return /\$\$[\s\S]+?\$\$|\$[^$\n]+?\$/.test(content ?? "");
+}
+
+export function rehypePluginsFor(content: string | undefined | null): PluggableList {
+    return [
+        rehypeRaw,
+        ...(hasMath(content) ? [rehypeKatex] : []),
+        rehypeSlug,
+        [rehypeAutolinkHeadings],
+        [rehypeExternalLinks, { target: "_blank", rel: ["noopener", "noreferrer"] }],
+        [
+            rehypeShiki,
+            {
+                themes: {
+                    light: "light-plus",
+                    dark: "dark-plus",
+                },
+                transformers: [languageTransformer],
             },
-            transformers: [languageTransformer],
-        },
-    ],
-    rehypeMarkBlockCode,
-];
+        ],
+        rehypeMarkBlockCode,
+    ];
+}

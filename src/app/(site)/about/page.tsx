@@ -51,7 +51,7 @@ export default async function AboutPage() {
                     &lt;- Home
                 </Link>
 
-                {(await MarkdownWithToc({ content: aboutContent, className: "stagger-prose" }))}
+                {(await MarkdownWithToc({ content: aboutContent }))}
 
                 <ContactForm className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-400 fill-mode-backwards" />
 

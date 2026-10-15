@@ -35,7 +35,7 @@ export function TypingQuote() {
             <span aria-hidden="true" className="invisible motion-reduce:visible">
                 &quot;{QUOTE}&quot;
             </span>
-            <span aria-hidden="true" className="absolute inset-0 motion-reduce:hidden animate-in fade-in slide-in-from-bottom-4 fill-mode-backwards duration-500 delay-200">
+            <span aria-hidden="true" className="absolute inset-0 motion-reduce:hidden">
                 &quot;{text}
                 <span className="animate-[blink_1s_step-end_infinite] text-foreground -mx-0.75">
                     |

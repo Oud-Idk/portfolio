@@ -5,7 +5,7 @@ import { MarkdownAsync, type Components } from "react-markdown";
 import type { PluggableList } from "unified";
 
 import { getLinguist } from "../lib/linguist";
-import { rehypePlugins, remarkPlugins } from "../lib/markdown-plugins";
+import { hasMath, rehypePluginsFor, remarkPlugins } from "../lib/markdown-plugins";
 import { rehypeCollectHeadings, type TocItem } from "../lib/markdown-toc";
 import { CopyButton } from "./CopyButton";
 
@@ -144,16 +144,25 @@ function getMarkdown(content: string, collectToc: boolean): Promise<{ body: Reac
     let hit = markdownCache.get(key);
     if (!hit) {
         const collected: TocItem[] = [];
-        const rehype: PluggableList = collectToc
-            ? [...rehypePlugins, [rehypeCollectHeadings, { into: collected }]]
-            : rehypePlugins;
 
-        hit = MarkdownAsync({
-            remarkPlugins,
-            rehypePlugins: rehype,
-            components: markdownComponents,
-            children: content,
-        }).then((body) => ({ body, headings: collected }));
+        // Only pull in KaTeX (CSS + rehype plugin) when the content actually
+        // contains math, so pages without math skip the ~40KB of fonts/CSS.
+        const rehypeLoader = (): PluggableList => {
+            return (
+                collectToc
+                    ? [...rehypePluginsFor(content), [rehypeCollectHeadings, { into: collected }]]
+                    : rehypePluginsFor(content)
+            ) as PluggableList;
+        };
+
+        hit = Promise.resolve(rehypeLoader()).then((rehype) =>
+            MarkdownAsync({
+                remarkPlugins,
+                rehypePlugins: rehype,
+                components: markdownComponents,
+                children: content,
+            }).then((body) => ({ body, headings: collected }))
+        );
         hit.catch(() => markdownCache.delete(key));
         markdownCache.set(key, hit);
     }

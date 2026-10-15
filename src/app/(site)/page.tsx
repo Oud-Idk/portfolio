@@ -36,12 +36,6 @@ const otherContent = `
 > *"Simplicity is prerequisite for reliability."* - Edsger W. Dijkstra
 
 The best software doesn’t show off. The best one simply works. Whether that means a dashboard, a company profile, or a portfolio, my goal is to deliver intuitive tools that respect your users' time.
-
-This website is a living example of my philosophy. I can write something like this, and it will still load instantly.
-
-$$
-\\frac{\\partial \\mathbf{u}}{\\partial t} + (\\mathbf{u} \\cdot \\nabla)\\mathbf{u} = -\\frac{1}{\\rho}\\nabla p + \\nu \\nabla^2 \\mathbf{u} + \\mathbf{f}
-$$
 `
 
 export default async function Home() {
@@ -61,13 +55,13 @@ export default async function Home() {
             />
             <main className="mx-auto flex max-w-7xl flex-col gap-8">
                 <section className="flex flex-col items-start gap-2">
-                    <h1 className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-backwards motion-reduce:animate-none text-3xl font-bold tracking-tight sm:text-4xl">
+                    <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
                         Hi, I&apos;m Dayton Glenn Japaryo.
                     </h1>
 
                     <TypingQuote />
 
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-350 fill-mode-backwards motion-reduce:animate-none flex items-center gap-4">
+                    <div className="flex items-center gap-4">
                         <a
                             href="mailto:dayton@oud-idk.dev"
                             className={buttonVariants()}
@@ -85,7 +79,7 @@ export default async function Home() {
 
                         {(await MarkdownRenderer({ content: "Or email `dayton@oud-idk.dev`", className: "-my-4" }))}
                     </div>
-                    <div className="animate-in fade-in slide-in-from-bottom-4 fill-mode-backwards duration-500 delay-500 flex items-center gap-1 motion-reduce:animate-none">
+                    <div className="flex items-center gap-1">
                         <a
                             href="https://github.com/Oud-Idk"
                             target="_blank"
@@ -138,11 +132,11 @@ export default async function Home() {
                     </div>
                 </section>
 
-                {(await MarkdownRenderer({ content: mainContent, className: "stagger-prose" }))}
+                {(await MarkdownRenderer({ content: mainContent }))}
 
                 <Separator />
 
-                <section className="flex flex-col gap-6">
+                <section className="flex flex-col gap-6 defer-section">
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="text-xl font-bold tracking-tight">Some Projects</h2>
@@ -173,11 +167,11 @@ export default async function Home() {
 
                 <Separator />
 
-                {(await MarkdownRenderer({ content: otherContent, className: "stagger-prose" }))}
+                {(await MarkdownRenderer({ content: otherContent, className: "defer-section" }))}
 
                 <Separator />
 
-                <section className="flex flex-col gap-6">
+                <section className="flex flex-col gap-6 defer-section">
                     <div className="flex items-center justify-between">
                         <h2 className="text-xl font-bold tracking-tight">Recent Blogs</h2>
 
@@ -202,6 +196,7 @@ export default async function Home() {
                                     <div className="flex min-w-0 flex-wrap items-center gap-2">
                                         <Link
                                             href={post.slug ? `/blog/${post.slug}` : "/blog"}
+                                            prefetch={false}
                                             className="text-link hover:text-link-hover underline underline-offset-4 decoration-link/40 hover:decoration-link-hover font-medium transition-colors wrap-break-word break-all focus-ring rounded-xs"
                                         >
                                             {post.title}

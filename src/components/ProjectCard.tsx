@@ -32,6 +32,7 @@ export function ProjectCard({ project, index }: { project: Project; index: numbe
                     {project.slug ? (
                         <Link
                             href={`/projects/${project.slug}`}
+                            prefetch={false}
                             className="outline-none focus-ring"
                         >
                             {project.title}
@@ -59,6 +60,7 @@ export function ProjectCard({ project, index }: { project: Project; index: numbe
                 {project.slug && (
                     <Link
                         href={`/projects/${project.slug}`}
+                        prefetch={false}
                         className={buttonVariants({ variant: "ghost", size: "sm" })}
                     >
                         Write-up -&gt;
