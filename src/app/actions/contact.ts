@@ -23,7 +23,7 @@ export async function sendContactEmail(formData: FormData) {
         });
 
         return { success: true };
-    } catch (err) {
+    } catch {
         return { error: "Failed to send email" };
     }
 }

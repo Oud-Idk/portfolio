@@ -102,10 +102,12 @@ const markdownComponents: Components & Record<string, React.ElementType> = {
         );
     },
     img(raw: React.ComponentProps<"img"> & { node?: unknown }) {
-        const { width, height, ...props } = withoutNode(raw);
+        const { width, height, alt, ...props } = withoutNode(raw);
 
         return (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
+                alt={alt ?? ""}
                 width={width ?? 800}
                 height={height ?? 600}
                 loading="lazy"
