@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 import { buttonVariants } from "@/components/ui/button";
-import { MarkdownWithToc } from "@/components/ui/markdown/MarkdownWithToC";
+import { MarkdownWithToc } from "@oud-idk/markdown";
 import { ContactForm } from "@/components/ContactForm";
 
 export const metadata: Metadata = {

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
 
-import type { TocItem } from "@/lib/markdown-toc";
+import type { TocItem } from "../lib/markdown-toc";
 
 export type { TocItem };
 

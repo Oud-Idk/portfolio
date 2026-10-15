@@ -6,7 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { BlogExplorer } from "@/components/BlogExplorer";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { ArrowUpRight, Rss } from "lucide-react";
-import { MarkdownRenderer } from "@/components/ui/markdown/MarkdownRenderer";
+import { MarkdownRenderer } from "@oud-idk/markdown";
 
 export const metadata = {
     title: "Blog",

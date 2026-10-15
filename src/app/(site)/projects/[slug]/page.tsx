@@ -6,13 +6,13 @@ import { notFound } from "next/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { MarkdownWithToc } from "@/components/ui/markdown/MarkdownWithToC";
+import { MarkdownWithToc } from "@oud-idk/markdown";
 import { ReadingProgress } from "@/components/ReadingProgress";
 import { getProject, getProjects, imageUrl } from "@/sanity/lib/queries";
-import { readingTime } from "@/lib/reading-time";
+import { readingTime } from "@oud-idk/markdown";
 import { cn } from "cn";
 import { ArrowUpRight } from "lucide-react";
-import { MarkdownRenderer } from "@/components/ui/markdown/MarkdownRenderer";
+import { MarkdownRenderer } from "@oud-idk/markdown";
 
 interface ProjectPageProps {
     params: Promise<{ slug: string }>;

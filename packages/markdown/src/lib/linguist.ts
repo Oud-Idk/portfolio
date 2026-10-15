@@ -1,4 +1,4 @@
-import languageMap from '@/data/language-map.json';
+import languageMap from '../data/language-map.json';
 
 // The JSON is inferred as an object literal with no index signature, so the
 // Record annotations are required to index it with a runtime string.

@@ -4,10 +4,10 @@ import React, { type ReactNode } from "react";
 import { MarkdownAsync, type Components } from "react-markdown";
 import type { PluggableList } from "unified";
 
-import { getLinguist } from "@/lib/linguist";
-import { rehypePlugins, remarkPlugins } from "@/lib/markdown-plugins";
-import { rehypeCollectHeadings, type TocItem } from "@/lib/markdown-toc";
-import { CopyButton } from "@/components/ui/markdown/CopyButton";
+import { getLinguist } from "../lib/linguist";
+import { rehypePlugins, remarkPlugins } from "../lib/markdown-plugins";
+import { rehypeCollectHeadings, type TocItem } from "../lib/markdown-toc";
+import { CopyButton } from "./CopyButton";
 
 function extractText(node: ReactNode): string {
     if (typeof node === "string") return node;

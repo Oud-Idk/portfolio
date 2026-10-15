@@ -3,8 +3,8 @@
 import React, { useRef, type ReactNode } from "react";
 
 import { TableOfContents } from "./TableOfContents";
-import type { TocItem } from "@/lib/markdown-toc";
-import { cn } from "@/lib/utils";
+import type { TocItem } from "../lib/markdown-toc";
+import { cn } from "cn";
 
 interface MarkdownLayoutProps {
     /** Server-rendered document. Kept opaque here — only the ref matters to the ToC. */

@@ -13,7 +13,7 @@ import {
 
 import type { Project } from "@/sanity/lib/queries";
 import { ArrowUpRight } from "lucide-react";
-import { MarkdownRenderer } from "@/components/ui/markdown/MarkdownRenderer";
+import { MarkdownRenderer } from "@oud-idk/markdown";
 
 export function ProjectCard({ project, index }: { project: Project; index: number }) {
     return (

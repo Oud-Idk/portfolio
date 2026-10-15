@@ -5,7 +5,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Card } from "@/components/ui/card";
 import { ProjectCard } from "@/components/ProjectCard";
-import { MarkdownRenderer } from "@/components/ui/markdown/MarkdownRenderer";
+import { MarkdownRenderer } from "@oud-idk/markdown";
 import { TypingQuote } from "@/components/TypingQuote";
 import { ArrowUpRight } from "lucide-react";
 import { SiBluesky, SiGithub, SiInstagram, SiX, SiYoutube } from "@icons-pack/react-simple-icons";

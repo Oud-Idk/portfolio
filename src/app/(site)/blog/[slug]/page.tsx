@@ -6,11 +6,11 @@ import { notFound } from "next/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { MarkdownWithToc } from "@/components/ui/markdown/MarkdownWithToC";
+import { MarkdownWithToc } from "@oud-idk/markdown";
 import { ReadingProgress } from "@/components/ReadingProgress";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { getPost, getPosts, imageUrl } from "@/sanity/lib/queries";
-import { readingTime } from "@/lib/reading-time";
+import { readingTime } from "@oud-idk/markdown";
 import { cn } from "cn";
 
 interface BlogPostPageProps {

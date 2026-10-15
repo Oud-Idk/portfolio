@@ -1,6 +1,6 @@
-import { MarkdownLayout } from "@/components/ui/markdown/MarkdownLayout";
-import { MarkdownRenderer } from "@/components/ui/markdown/MarkdownRenderer";
-import type { TocItem } from "@/lib/markdown-toc";
+import { MarkdownLayout } from "./MarkdownLayout";
+import { MarkdownRenderer } from "./MarkdownRenderer";
+import type { TocItem } from "../lib/markdown-toc";
 
 interface MarkdownWithTocProps {
     content?: string;

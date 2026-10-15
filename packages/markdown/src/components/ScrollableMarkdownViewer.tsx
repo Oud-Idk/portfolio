@@ -2,8 +2,8 @@
 
 import React, { type ReactNode } from 'react';
 
-import { useMarkdownScroller } from "@/components/ui/markdown/useMarkdownScroller";
-import { cn } from "@/lib/utils";
+import { useMarkdownScroller } from "./useMarkdownScroller";
+import { cn } from "cn";
 
 interface ScrollableMarkdownViewerProps {
     /** Server-rendered markdown, e.g. `<MarkdownRenderer content={...} />`. */
