@@ -125,7 +125,10 @@ storage (written for Cloudflare R2; any S3-compatible endpoint works).
 - **Two scopes.** `media/…` objects are public, immutable, and cached for a year
   — these are what you embed in a post. `files/…` objects have no public URL and
   are read through a signed, expiring `/api/files/<key>?token=…` link, which
-  redirects to a short-lived presigned GET.
+  redirects to a short-lived presigned GET. They are stored as
+  `application/octet-stream` with `Content-Disposition: attachment`, both signed
+  into the upload, so an uploaded SVG or HTML downloads rather than executes
+  however it is reached.
 - **Embedding.** After an upload the UI hands you copy-paste markdown:
   `:::video{src="…"}` for a clip, `![](…)` for an image.
 
@@ -157,7 +160,7 @@ R2 setup:
   {
     "AllowedOrigins": ["https://oud-idk.dev"],
     "AllowedMethods": ["PUT"],
-    "AllowedHeaders": ["content-type", "cache-control"],
+    "AllowedHeaders": ["content-type", "content-disposition", "cache-control"],
     "MaxAgeSeconds": 3600
   }
 ]
@@ -192,8 +195,13 @@ deliberately doubly guarded: it is ignored unless `NODE_ENV` is not
 
 Notes:
 
-- **Limits.** 200 MB for media, 100 MB for other files. A presigned `PUT` cannot
-  cap bytes server-side, so the Access policy is what limits who may push.
+- **Limits.** 200 MB for media, 100 MB for other files. The declared length is
+  signed into the presigned `PUT`, so a body of any other size is rejected by
+  storage with `SignatureDoesNotMatch` — the cap is enforced, not advisory.
+- **Keep the media origin separate.** Serve `S3_PUBLIC_BASE_URL` from an `r2.dev`
+  subdomain or a custom domain, never from a path on the site's own hostname: an
+  SVG in `media/` renders on whatever origin serves it, and a separate origin
+  shares no cookies with the site.
 - **No rebuild needed.** The `S3_*`, `FILE_LINK_SECRET` and `CF_ACCESS_*` vars are
   read at request time, so a restart is enough — unlike `NEXT_PUBLIC_*`, which is
   inlined at build time.

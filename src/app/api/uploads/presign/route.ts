@@ -32,10 +32,10 @@ interface PresignBody {
  * never see or hold: Cloudflare attaches it when the request passes the Access
  * policy, and we verify it before signing anything.
  *
- * The client must send back exactly the `headers` we return (they are part of
- * the signature), so the declared content type is the one that lands on the
- * object. Size is checked here on the client's word: a presigned PUT can't cap
- * bytes, so the Access policy is the real limit on who can push.
+ * The client must send back exactly the `headers` we return, and a body of
+ * exactly the length it declared, because all of that is part of the signature.
+ * So the headers that land on the object are the ones chosen here, and an
+ * oversized body fails the signature instead of being stored.
  */
 export async function POST(request: NextRequest) {
     if (!isAccessConfigured()) {
@@ -96,6 +96,7 @@ export async function POST(request: NextRequest) {
             scope: scope as UploadScope,
             key: buildKey(scope as UploadScope, filename),
             contentType,
+            size,
         });
         return NextResponse.json(result);
     } catch (error) {

@@ -15,7 +15,8 @@ export type { PresignResult, UploadScope } from "./upload-types";
  * scopes map onto two buckets:
  *
  *   media  public, immutable, long-cached. Videos/images embedded in posts.
- *   files  private. Never given a public URL; read through /api/files/…
+ *   files  private. Never given a public URL; read through /api/files/… and
+ *          stored as opaque bytes, so nothing uploaded here can execute.
  *
  * `S3_PRIVATE_BUCKET` may be left unset, in which case both scopes share
  * `S3_BUCKET` — see `privateBucketIsShared()`.
@@ -49,17 +50,22 @@ const MEDIA_TYPES = new Set([
 ]);
 
 /**
- * What may be stored privately. Broad, but active content is refused: these
- * objects are still served from an origin we don't control the headers of, and
- * there is no reason for a portfolio attachment to be executable.
+ * How a private object is written — both are object metadata, so *every* read
+ * carries them: a presigned GET, a public URL if the bucket is misconfigured,
+ * any client at all. That is what makes an uploaded SVG or HTML inert.
+ *
+ * There is deliberately no list of forbidden types. Screening a client-declared
+ * type is a blocklist that has to be complete to be safe, and it never was:
+ * `image/svg+xml` and `text/xml` run script when opened directly, and neither
+ * was refused. A private file is stored with no type instead, so there is
+ * nothing to screen.
+ *
+ * This lives on the object rather than as a `response-content-disposition` on
+ * the GET because R2 documents Content-Disposition as PutObject system metadata
+ * and not as a GetObject response parameter.
  */
-const ACTIVE_TYPES = new Set([
-    "application/javascript",
-    "application/x-httpd-php",
-    "application/xhtml+xml",
-    "text/html",
-    "text/javascript",
-]);
+const PRIVATE_CONTENT_TYPE = "application/octet-stream";
+const PRIVATE_CONTENT_DISPOSITION = "attachment";
 
 function env(name: string): string {
     return process.env[name]?.trim() ?? "";
@@ -148,13 +154,14 @@ export function validateUpload(
 ): UploadValidation {
     const type = contentType.split(";")[0].trim().toLowerCase();
 
-    if (!type) return { ok: false, error: "A content type is required." };
-
-    if (scope === "media" && !MEDIA_TYPES.has(type)) {
-        return { ok: false, error: `Unsupported media type: ${type}` };
-    }
-    if (scope === "files" && ACTIVE_TYPES.has(type)) {
-        return { ok: false, error: `Refusing active content: ${type}` };
+    // Only `media` is type-checked: those objects keep their type and are served
+    // inline to every visitor. A private file's declared type is discarded (see
+    // PRIVATE_CONTENT_TYPE), so there is no active type left to refuse.
+    if (scope === "media") {
+        if (!type) return { ok: false, error: "A content type is required." };
+        if (!MEDIA_TYPES.has(type)) {
+            return { ok: false, error: `Unsupported media type: ${type}` };
+        }
     }
 
     if (!Number.isFinite(size) || size <= 0) {
@@ -175,24 +182,40 @@ export async function presignUpload(input: {
     scope: UploadScope;
     key: string;
     contentType: string;
+    /** Byte length the client declared; signed in, so it becomes a hard cap. */
+    size: number;
 }): Promise<PresignResult> {
-    const contentType = input.contentType.split(";")[0].trim().toLowerCase();
-    const headers: Record<string, string> = { "Content-Type": contentType };
     const media = input.scope === "media";
-    if (media) headers["Cache-Control"] = MEDIA_CACHE_CONTROL;
+    const contentType = media
+        ? input.contentType.split(";")[0].trim().toLowerCase()
+        : PRIVATE_CONTENT_TYPE;
+
+    const headers: Record<string, string> = { "Content-Type": contentType };
+
+    // SigV4 signs only `host` by default, leaving every other header a
+    // suggestion the client could drop or change. Forcing these into the
+    // signature makes sending them, unchanged, part of the contract.
+    const signableHeaders = new Set(["content-type", "content-length"]);
+    if (media) {
+        headers["Cache-Control"] = MEDIA_CACHE_CONTROL;
+        signableHeaders.add("cache-control");
+    } else {
+        headers["Content-Disposition"] = PRIVATE_CONTENT_DISPOSITION;
+        signableHeaders.add("content-disposition");
+    }
 
     const command = new PutObjectCommand({
         Bucket: bucketFor(input.scope),
         Key: input.key,
         ContentType: contentType,
-        ...(media ? { CacheControl: MEDIA_CACHE_CONTROL } : {}),
+        // Signing the length is what actually enforces MAX_BYTES: a body whose
+        // Content-Length differs from the number signed here fails
+        // SignatureDoesNotMatch, so an oversized file is rejected, not stored.
+        ContentLength: input.size,
+        ...(media
+            ? { CacheControl: MEDIA_CACHE_CONTROL }
+            : { ContentDisposition: PRIVATE_CONTENT_DISPOSITION }),
     });
-
-    // SigV4 signs only `host` by default, which would leave the content type as
-    // a suggestion the client could drop — storing a video as octet-stream.
-    // Forcing these into the signature makes sending them part of the contract.
-    const signableHeaders = new Set(["content-type"]);
-    if (media) signableHeaders.add("cache-control");
 
     const uploadUrl = await getSignedUrl(s3(), command, {
         expiresIn: UPLOAD_TTL_SECONDS,
@@ -208,7 +231,14 @@ export async function presignUpload(input: {
     };
 }
 
-/** Short-lived direct URL to a private object, for the signed read proxy. */
+/**
+ * Short-lived direct URL to a private object, for the signed read proxy.
+ *
+ * No `response-content-*` overrides here: whether the object downloads or
+ * renders is decided when it is written (see PRIVATE_CONTENT_TYPE). That is the
+ * one place R2 guarantees the header, and it also covers reads that never go
+ * through this function.
+ */
 export async function presignDownload(key: string, scope: UploadScope = "files"): Promise<string> {
     const command = new GetObjectCommand({ Bucket: bucketFor(scope), Key: key });
     return getSignedUrl(s3(), command, { expiresIn: DOWNLOAD_TTL_SECONDS });
