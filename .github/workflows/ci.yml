@@ -4,6 +4,9 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+  # Also callable from deploy.yml, so a release reuses this exact job
+  # instead of duplicating the commands.
+  workflow_call:
 
 jobs:
   ci:

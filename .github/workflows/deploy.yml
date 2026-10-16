@@ -14,8 +14,16 @@ env:
   REGISTRY: ghcr.io
 
 jobs:
+  # Gate: nothing builds or deploys until lint + typecheck are green.
+  ci:
+    name: Lint & typecheck
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+
   build:
     name: Build & push image
+    needs: ci
     runs-on: ubuntu-latest
     permissions:
       contents: read
