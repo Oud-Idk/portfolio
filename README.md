@@ -109,6 +109,95 @@ sent from the Sanity publish webhook (`src/app/api/webhooks/publish`).
   confirmation link to it. Broadcasts carry no per-recipient token, so the
   emailed link is what proves the requester owns the mailbox.
 
+## Uploads (Cloudflare R2 / S3)
+
+Videos, images, and arbitrary private files live in S3-compatible object
+storage (written for Cloudflare R2; any S3-compatible endpoint works).
+
+- **Surfaces.** `/admin/uploads` (standalone page) and an **Uploads** panel in
+  the Studio (`/studio`). Both upload straight from the browser to storage over
+  a presigned URL, so the file never passes through this server.
+- **Auth.** There are no user accounts and no upload secret. Both surfaces sit
+  behind **Cloudflare Access**, and `/api/uploads/*` refuses anything without a
+  token Access signed. Nothing is stored in the browser, so there is no shared
+  credential to leak or rotate. It fails closed: with Access unconfigured,
+  `/admin/uploads` 404s and `/api/uploads/*` returns 503.
+- **Two scopes.** `media/…` objects are public, immutable, and cached for a year
+  — these are what you embed in a post. `files/…` objects have no public URL and
+  are read through a signed, expiring `/api/files/<key>?token=…` link, which
+  redirects to a short-lived presigned GET.
+- **Embedding.** After an upload the UI hands you copy-paste markdown:
+  `:::video{src="…"}` for a clip, `![](…)` for an image.
+
+Config (see `.env.docker.example`): `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`,
+`S3_PRIVATE_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`,
+`S3_PUBLIC_BASE_URL`, `FILE_LINK_SECRET` (`openssl rand -base64 32`, server-side
+only — it signs private links), and `CF_ACCESS_TEAM_DOMAIN` / `CF_ACCESS_AUD`.
+
+Verification is real, not header-trusting: Cloudflare stamps every request that
+passes an Access policy with a `Cf-Access-Jwt-Assertion` header, and
+`src/lib/cloudflare-access.ts` checks its signature against Cloudflare's
+published keys, plus the issuer and application audience. A header set by hand —
+by anything else on the host that can reach the bound port — fails that check.
+
+R2 setup:
+
+1. Create the media bucket, enable public access (an `r2.dev` subdomain or a
+   custom domain), and set `S3_PUBLIC_BASE_URL` to that origin.
+2. Create a second, **non-public** bucket for private files and point
+   `S3_PRIVATE_BUCKET` at it. If you skip this, `files/` objects share the media
+   bucket and are only protected by unguessable keys — not actually private.
+3. Create an R2 API token with Object Read & Write for the bucket(s). Use it as
+   `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY`, and set `S3_ENDPOINT` to
+   `https://<account-id>.r2.cloudflarestorage.com` (`S3_REGION` stays `auto`).
+4. Allow browser uploads from your origin with CORS on **both** buckets:
+
+```json
+[
+  {
+    "AllowedOrigins": ["https://oud-idk.dev"],
+    "AllowedMethods": ["PUT"],
+    "AllowedHeaders": ["content-type", "cache-control"],
+    "MaxAgeSeconds": 3600
+  }
+]
+```
+
+Add `http://localhost:3000` to `AllowedOrigins` while developing.
+
+Cloudflare Access setup:
+
+1. In Zero Trust → Access → Applications, add a **Self-hosted** application for
+   your tunnel hostname.
+2. Create one application per protected path — `/admin`, `/api/uploads` and
+   `/studio` — each with an Allow policy for your email. An application has a
+   single path, which is why the audiences are a list.
+3. Set `CF_ACCESS_TEAM_DOMAIN` to your team domain
+   (`https://<team>.cloudflareaccess.com`) and `CF_ACCESS_AUD` to those
+   applications' Audience tags, comma-separated.
+4. Leave `/api/files/*` **out** of Access: share links exist so someone with no
+   account can read a file. Protecting it would make every shared link ask them
+   to log in. (One application on the whole hostname with a **Bypass** policy for
+   `/api/files/*` works too.)
+5. If a surface loads but the panel reports "Not authenticated", the policy is
+   too narrow — the API path needs covering as well as the page.
+
+For scripted uploads (curl, CI), create an Access **service token** and send it
+as `CF-Access-Client-Id` / `CF-Access-Client-Secret`; the app verifies the token
+Access mints from it like any other.
+
+Local development has no tunnel, so set `CF_ACCESS_DEV_BYPASS=1`. That is
+deliberately doubly guarded: it is ignored unless `NODE_ENV` is not
+`production`, so a stray variable in a deployed image cannot open uploads.
+
+Notes:
+
+- **Limits.** 200 MB for media, 100 MB for other files. A presigned `PUT` cannot
+  cap bytes server-side, so the Access policy is what limits who may push.
+- **No rebuild needed.** The `S3_*`, `FILE_LINK_SECRET` and `CF_ACCESS_*` vars are
+  read at request time, so a restart is enough — unlike `NEXT_PUBLIC_*`, which is
+  inlined at build time.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

@@ -27,6 +27,20 @@ services:
       # itself invalid rather than acting on a guessable id. Set it, or nobody
       # can unsubscribe at all.
       - UNSUBSCRIBE_TOKEN_SECRET=${UNSUBSCRIBE_TOKEN_SECRET:-}
+      # Object storage for uploads. Blank disables uploads entirely (the page
+      # 404s and the API refuses). Read at request time, so a restart is enough.
+      - S3_ENDPOINT=${S3_ENDPOINT:-}
+      - S3_REGION=${S3_REGION:-auto}
+      - S3_BUCKET=${S3_BUCKET:-}
+      - S3_PRIVATE_BUCKET=${S3_PRIVATE_BUCKET:-}
+      - S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID:-}
+      - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY:-}
+      - S3_PUBLIC_BASE_URL=${S3_PUBLIC_BASE_URL:-}
+      - FILE_LINK_SECRET=${FILE_LINK_SECRET:-}
+      # Cloudflare Access identifies the caller. Without these, uploads stay
+      # off; there is no shared upload secret to configure.
+      - CF_ACCESS_TEAM_DOMAIN=${CF_ACCESS_TEAM_DOMAIN:-}
+      - CF_ACCESS_AUD=${CF_ACCESS_AUD:-}
     depends_on:
       meilisearch:
         condition: service_started

@@ -4,6 +4,7 @@ import { markdownSchema } from 'sanity-plugin-markdown'
 
 import { projectType } from './sanity/schemaTypes/projectType'
 import { postType } from './sanity/schemaTypes/postType'
+import { UploadsTool } from './sanity/tools/uploadsTool'
 
 export default defineConfig({
     name: 'default',
@@ -15,4 +16,8 @@ export default defineConfig({
     schema: {
         types: [projectType, postType],
     },
+    tools: (prev) => [
+        ...prev,
+        { name: 'uploads', title: 'Uploads', component: UploadsTool },
+    ],
 })
