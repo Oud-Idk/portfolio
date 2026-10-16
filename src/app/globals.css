@@ -322,6 +322,18 @@ blockquote {
   border: 1px solid var(--border);
 }
 
+/* `:::video` directive — same box as `.sidebyside img`, so a GIF converted to
+   mp4/webm sits in the flow exactly where the <img> did. */
+.video-embed {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 1.5rem 0;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background-color: var(--surface-muted);
+}
+
 .shiki,
 .shiki span {
     color: var(--shiki-light);
