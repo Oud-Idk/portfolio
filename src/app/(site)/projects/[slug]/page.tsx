@@ -60,6 +60,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             <main className="mx-auto flex max-w-7xl flex-col gap-4">
                 <Link
                     href="/"
+                    prefetch={false}
                     className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "max-w-fit")}
                 >
                     &lt;- All projects

@@ -30,6 +30,7 @@ export function BlogCard({ post, index }: { post: Post; index: number }) {
                     {post.slug ? (
                         <Link
                             href={`/blog/${post.slug}`}
+                            prefetch={false}
                             className="outline-none focus-ring"
                         >
                             {post.title}
@@ -74,6 +75,7 @@ export function BlogCard({ post, index }: { post: Post; index: number }) {
                 {post.slug && (
                     <Link
                         href={`/blog/${post.slug}`}
+                        prefetch={false}
                         className={buttonVariants({ variant: "ghost", size: "sm" })}
                     >
                         Read -&gt;

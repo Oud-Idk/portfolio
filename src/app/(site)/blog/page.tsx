@@ -21,6 +21,7 @@ export default async function BlogPage() {
             <main className="mx-auto flex max-w-7xl flex-col gap-8">
                 <Link
                     href="/"
+                    prefetch={false}
                     className={`${buttonVariants({ variant: "ghost", size: "sm" })} max-w-fit`}
                 >
                     &lt;- Home

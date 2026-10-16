@@ -72,6 +72,7 @@ export default async function Home() {
 
                         <Link
                             href="/about"
+                            prefetch={false}
                             className={buttonVariants({ variant: "ghost" })}
                         >
                             About me
@@ -144,6 +145,7 @@ export default async function Home() {
 
                         <Link
                             href="/studio"
+                            prefetch={false}
                             className={buttonVariants({ variant: "ghost", size: "sm" })}
                         >
                             CMS Studio <ArrowUpRight/>
@@ -177,6 +179,7 @@ export default async function Home() {
 
                         <Link
                             href="/blog"
+                            prefetch={false}
                             className={buttonVariants({ variant: "ghost", size: "sm" })}
                         >
                             All posts -&gt;

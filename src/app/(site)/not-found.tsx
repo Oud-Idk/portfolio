@@ -16,7 +16,7 @@ export default function NotFound() {
                     The link may be broken, or the project may have been unpublished.
                 </p>
 
-                <Link href="/" className={buttonVariants()} >
+                <Link href="/" prefetch={false} className={buttonVariants()} >
                     Back home
                 </Link>
             </main>

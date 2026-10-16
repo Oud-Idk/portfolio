@@ -61,6 +61,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             <main className="mx-auto flex max-w-7xl flex-col gap-4">
                 <Link
                     href="/blog"
+                    prefetch={false}
                     className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "max-w-fit")}
                 >
                     &lt;- All posts

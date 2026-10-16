@@ -46,6 +46,7 @@ export default async function AboutPage() {
                 />
                 <Link
                     href="/"
+                    prefetch={false}
                     className={`${buttonVariants({ variant: "ghost", size: "sm" })} max-w-fit`}
                 >
                     &lt;- Home
